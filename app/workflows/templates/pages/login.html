@@ -10,14 +10,15 @@
 <body>
 <div class="panel center">
     <form method="post">
+        {% csrf_token %}
     <div class="margin-30 center-text">
         <h1>Login</h1>
     </div>
     <div class="margin-30">
-        <input type="text" placeholder="Login" />
+        <input name="login" type="text" placeholder="Login" />
     </div>
     <div class="margin-30">
-        <input type="password" placeholder="Password" />
+        <input name="password" type="password" placeholder="Password" />
     </div>
     <div class="margin-30 right">
         <button>Login</button>

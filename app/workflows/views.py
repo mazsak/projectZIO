@@ -8,7 +8,18 @@ def index(request):
 
 
 def login(request):
-    return render(request, 'pages/login.html')
+    username = request.POST.get('login')
+    password = request.POST.get('password')
+    print(username)
+    print(password)
+    # TODO: handle logging(check if user exists etc.)
+    context = {
+        'is_new_account': False,
+        'failed': False,
+        'login': None,
+        'password': None
+    }
+    return render(request, 'pages/login.html', context)
 
 
 def register(request):
