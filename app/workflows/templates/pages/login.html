@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <title>Login</title>
+</head>
+<body>
+<div class="panel center">
+    <form method="post">
+    <div class="margin-30 center-text">
+        <h1>Login</h1>
+    </div>
+    <div class="margin-30">
+        <input type="text" placeholder="Login" />
+    </div>
+    <div class="margin-30">
+        <input type="password" placeholder="Password" />
+    </div>
+    <div class="margin-30 right">
+        <button>Login</button>
+    </div>
+    <div class="margin-30">
+        <p>Don't have an account? <a href="{{  }}">Create now!</a></p>
+    </div>
+    </form>
+</div>
+</body>
+</html>

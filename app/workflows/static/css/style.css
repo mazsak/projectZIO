@@ -1,0 +1,25 @@
+.panel {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}
+
+.center-text{
+    text-align: center;
+}
+
+.right{
+    float: right;
+}
+
+.margin-30{
+    margin : 30px;
+}
