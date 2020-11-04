@@ -13,8 +13,6 @@ def login(request):
     password = request.POST.get('password')
     # TODO: handle logging(check if user exists etc.)
     context = {
-        'is_new_account': False,
-        'failed': False,
         'login': None,
         'password': None
     }
@@ -27,4 +25,17 @@ def login(request):
 
 
 def register(request):
+    username = request.POST.get('login')
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    confirm_password = request.POST.get('confirm_password')
+    # TODO: handle registering
+    context = {
+        'login': None,
+        'email': None,
+        'password': None,
+        'confirm_password': None
+    }
+    # TODO: handle error messages
+    messages.error(request, "Username is already taken")
     return render(request, 'pages/register.html')
