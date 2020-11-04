@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 
 
 # Create your views here.
@@ -11,16 +13,21 @@ def index(request):
 def login(request):
     username = request.POST.get('login')
     password = request.POST.get('password')
-    # TODO: handle logging(check if user exists etc.)
     context = {
         'login': None,
         'password': None
     }
-    # TODO: handle error messages
-    # negative message
-    messages.error(request, "Username or password not correct")
-    #  positive message
-    messages.info(request, "Account created successfully")
+    user = authenticate(request, username=username, password=password)
+    print(request.META.get('HTTP_REFERER'))
+    if request.method == 'GET':
+        if user is not None:
+            messages.info(request, "Account created successfully")
+    elif request.method == 'POST':
+        if user is not None:
+            login(request, user)
+            messages.info(request, "Account created successfully")
+        else:
+            messages.error(request, "Username or password not correct")
     return render(request, 'pages/login.html', context)
 
 
@@ -36,6 +43,11 @@ def register(request):
         'password': None,
         'confirm_password': None
     }
-    # TODO: handle error messages
-    messages.error(request, "Username is already taken")
-    return render(request, 'pages/register.html')
+    if request.method == 'POST':
+        check_user = authenticate(username=username, password=password)
+        if check_user is not None:
+            messages.error(request, "Username is already taken")
+        else:
+            user = User.objects.create_user(username, email, password)
+            messages.success(request, "Account created successfully")
+    return render(request, 'pages/register.html', context)
