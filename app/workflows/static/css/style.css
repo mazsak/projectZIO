@@ -64,3 +64,23 @@
     border: none;
     outline: none;
 }
+
+.notification-error {
+    border-radius: 25px;
+    background-color: palevioletred;
+    border: 2px solid red;
+    font-size: 18px;
+    color: white;
+    padding: 6px;
+    margin: 5px;
+}
+
+.notification-info {
+    border-radius: 25px;
+    background-color: lightgreen;
+    border: 2px solid limegreen;
+    font-size: 18px;
+    color: white;
+    padding: 6px;
+    margin: 5px;
+}

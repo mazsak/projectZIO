@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib import messages
 
 
 # Create your views here.
@@ -10,8 +11,6 @@ def index(request):
 def login(request):
     username = request.POST.get('login')
     password = request.POST.get('password')
-    print(username)
-    print(password)
     # TODO: handle logging(check if user exists etc.)
     context = {
         'is_new_account': False,
@@ -19,6 +18,11 @@ def login(request):
         'login': None,
         'password': None
     }
+    # TODO: handle error messages
+    # negative message
+    messages.error(request, "Username or password not correct")
+    #  positive message
+    messages.info(request, "Account created successfully")
     return render(request, 'pages/login.html', context)
 
 
