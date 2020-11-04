@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <title>Register</title>
+</head>
+<body>
+<div class="panel center">
+    <div class="margin-30 center-text">
+        <h1>Register</h1>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="margin-30">
+            <input name="login" type="text" placeholder="Login"/>
+        </div>
+        <div class="margin-30">
+            <input name="email" type="email" placeholder="Email"/>
+        </div>
+        <div class="margin-30">
+            <input name="password" type="password" placeholder="Password"/>
+        </div>
+        <div class="margin-30">
+            <input name="confirm_password" type="password" placeholder="Confirm password"/>
+        </div>
+        <a class="danger cancel" href="/login">Cancel</a>
+        <button class="success">Create</button>
+    </form>
+</div>
+</body>
+</html>

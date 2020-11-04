@@ -4,7 +4,7 @@
     padding: 20px;
 }
 
-.center{
+.center {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -12,14 +12,55 @@
     transform: translate(-50%, -50%);
 }
 
-.center-text{
+.center-text {
     text-align: center;
 }
 
-.right{
+.right {
     float: right;
 }
 
-.margin-30{
-    margin : 30px;
+.margin-30 {
+    margin: 30px;
+}
+
+.success {
+    background-color: darkgreen;
+}
+
+.success:hover {
+    background-color: green;
+}
+
+.danger {
+    background-color: red;
+}
+
+.danger:hover {
+    background-color: orangered;
+}
+
+.cancel {
+    margin: 10px;
+    padding: 8px 60px;
+    background-color: red;
+    border-radius: 20px;
+    border-width: 0;
+    text-align: center;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+}
+
+.cancel:hover {
+    background-color: orangered;
+}
+
+.cancel:active {
+    background-color: darkred;
+}
+
+.cancel:focus {
+    border: none;
+    outline: none;
 }

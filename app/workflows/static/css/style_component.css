@@ -15,6 +15,7 @@ button{
   text-align: center;
   color: white;
   font-size: 20px;
+  cursor: pointer;
 }
 
 button:hover{
@@ -37,6 +38,7 @@ input{
   border-top: none;
   font-size: 20px;
   border-color: #8c8c8c;
+  width: 100%;
 }
 
 input:focus{
