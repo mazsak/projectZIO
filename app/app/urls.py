@@ -19,8 +19,8 @@ from django.urls import path
 from workflows import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('login', views.login, name='login'),
-    path('register', views.register, name='register'),
+    path('', views.index_view, name='index'),
+    path('login', views.login_view, name='login'),
+    path('register', views.register_view, name='register'),
     path('admin/', admin.site.urls),
 ]

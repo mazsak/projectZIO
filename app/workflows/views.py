@@ -6,11 +6,11 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 
-def index(request):
+def index_view(request):
     return render(request, 'pages/index.html')
 
 
-def login(request):
+def login_view(request):
     username = request.POST.get('login')
     password = request.POST.get('password')
     context = {
@@ -18,20 +18,20 @@ def login(request):
         'password': None
     }
     user = authenticate(request, username=username, password=password)
-    print(request.META.get('HTTP_REFERER'))
+    # print(request.META.get('HTTP_REFERER'))
     if request.method == 'GET':
         if user is not None:
             messages.info(request, "Account created successfully")
     elif request.method == 'POST':
         if user is not None:
-            login(request, user)
+            login(request,user)
             messages.info(request, "Account created successfully")
         else:
             messages.error(request, "Username or password not correct")
     return render(request, 'pages/login.html', context)
 
 
-def register(request):
+def register_view(request):
     username = request.POST.get('login')
     email = request.POST.get('email')
     password = request.POST.get('password')
