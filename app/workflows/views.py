@@ -1,8 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-
 
 # Create your views here.
 from workflows.models import Workflow
@@ -16,7 +15,7 @@ def login_view(request):
     username = request.POST.get('login')
     password = request.POST.get('password')
     context = {
-        'login':  None,
+        'login': None,
         'password': None
     }
     user = authenticate(request, username=username, password=password)
@@ -26,8 +25,9 @@ def login_view(request):
             messages.info(request, "Account created successfully")
     elif request.method == 'POST':
         if user is not None:
-            login(request,user)
+            login(request, user)
             messages.info(request, "Logged in successfully")
+            return redirect('/workflows')
         else:
             messages.error(request, "Username or password not correct")
     return render(request, 'pages/login.html', context)
@@ -38,7 +38,6 @@ def register_view(request):
     email = request.POST.get('email')
     password = request.POST.get('password')
     confirm_password = request.POST.get('confirm_password')
-    # TODO: handle registering
     context = {
         'login': None,
         'email': None,
@@ -52,10 +51,11 @@ def register_view(request):
         else:
             user = User.objects.create_user(username, email, password)
             messages.success(request, "Account created successfully")
+            return redirect('/workflows')
     return render(request, 'pages/register.html', context)
 
 
 def workflows_view(request):
-    # TODO: show workflows for user
-    context = {"workflows": Workflow.objects.all()}
+    logged_in_user = request.user
+    context = {"workflows": Workflow.objects.filter(author=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
