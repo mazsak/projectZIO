@@ -56,5 +56,6 @@ def register_view(request):
 
 
 def workflows_view(request):
+    # TODO: show workflows for user
     context = {"workflows": Workflow.objects.all()}
     return render(request, 'pages/workflows.html', context)
