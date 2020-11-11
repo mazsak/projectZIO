@@ -17,7 +17,7 @@ STATUS_VALUES = (
 class Subtask(models.Model):
     name = models.CharField(max_length=60)
     notes = models.CharField(max_length=1000)
-    script_path = models.FilePathField()
+    script_path = models.FilePathField(path='D:\ZIO\projectZIO\skrypty')
     created_on = models.DateTimeField(default=datetime.now)
     updated_on = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,

@@ -18,81 +18,95 @@
     </div>
     <div style="margin-left:130px;">
         <div class="row" style="width: 100%;">
-            <div class="panel col" style="margin:20px;height: 500px; min-width: 200px;">
-                <div>
-                    <div class="row " style="width: 100%">
-                        <div class="col">
-                            <h3 style="font-weight: bold; margin: 0;">
-                                Workflow test name
-                            </h3>
+            {% for workflow in workflows %}
+                <div class="panel col" style="margin:20px;height: 500px; min-width: 400px;">
+                    <div>
+                        <div class="row " style="width: calc(100% - 30px)">
+                            <div style="width: calc(100% - 30px);">
+                                <h3 style="font-weight: bold; margin:0 10px; overflow: hidden; white-space: nowrap;"
+                                    data-toggle="tooltip" data-placement="top" title="{{ workflow.name }}">
+                                    {{ workflow.name }}
+                                </h3>
+                            </div>
+                            <div style="text-align: right;">
+                                <a href="#">
+                                    <i class="glyphicon glyphicon-log-in" style="font-size: 24px;"></i>
+                                </a>
+                            </div>
                         </div>
-                        <div class="col col-lg-2" style="text-align: right;">
-                            <a href="#">
-                                <i class="glyphicon glyphicon-log-in" style="font-size: 24px;"></i>
-                            </a>
-                        </div>
+                        <hr/>
+                        <p style="height: 80px; overflow-y: scroll;">
+                            {{ workflow.notes }}
+                        </p>
                     </div>
-                    <hr/>
-                    <p style="height: 80px; overflow-y: scroll;">
-                        Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text
-                        Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text
-                    </p>
-                </div>
-                <div style="border: 1px solid #F2F2F2;">
-                    <div style="height: 280px; overflow-y: scroll; margin: 0;">
-                        <div class="accordion" id="accordionExample" style="margin: 0;">
-                            <div class="card" style="margin: 0;">
-                                <div class="card-header" id="headingOne" style="margin: 0;">
-                                    <h5 style="margin: 0;">
-                                        <button class="btn btn-link " type="button" data-toggle="collapse"
-                                                data-target="#collapseOne" aria-expanded="true"
-                                                aria-controls="collapseOne" style="margin: 0;">
-                                            Collapsible Group Item #1
-                                        </button>
-                                    </h5>
-                                </div>
 
-                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne"
-                                     data-parent="#accordionExample">
-                                    <div class="card-body">
-                                        <div>
-                                            <p>
-                                                Description Description Description Description Description Description
-                                                Description Description Description Description
-                                            </p>
+                    <div style="border: 1px solid #F2F2F2;">
+                        <div style="height: 280px; overflow-y: scroll; margin: 0;">
+                            <div class="accordion" style="margin: 0;">
+                                {% for task in workflow.tasks.all %}
+                                    <div class="card" style="margin: 0;">
+                                        <div class="card-header" id="{{ task.id }}"
+                                             style="margin: 0;">
+                                            <h5 style="margin: 0;">
+                                                <button class="btn btn-link " type="button" data-toggle="collapse"
+                                                        data-target="#collapse{{ task.id }}" aria-expanded="true"
+                                                        aria-controls="collapse{{ task.id }}"
+                                                        style="margin: 0; overflow: hidden; white-space: nowrap;"
+                                                        data-toggle="tooltip" data-placement="top"
+                                                        title="{{ task.name }}">
+                                                    {{ task.name }}
+                                                </button>
+                                            </h5>
                                         </div>
-                                        <div>
-                                            <div class="card" style="margin: 0;">
-                                                <div class="card-header" id="asasd" style="margin: 0;">
-                                                    <h5 style="margin: 0;">
-                                                        <button class="btn btn-link" type="button"
-                                                                data-toggle="collapse"
-                                                                data-target="#asdasdasdasd" aria-expanded="true"
-                                                                aria-controls="asdasdasdasd" style="margin: 0;">
-                                                            Collapsible Group Item #1
-                                                        </button>
-                                                    </h5>
-                                                </div>
 
-                                                <div id="asdasdasdasd" class="collapse" aria-labelledby="asasd"
-                                                     data-parent="#accordionExample">
-                                                    <div class="card-body">
-                                                        <p>
-                                                            Description Description Description Description
-                                                            Description Description Description Description
-                                                            Description Description
-                                                        </p>
-                                                    </div>
+                                        <div id="collapse{{ task.id }}" class="collapse" aria-labelledby="{{ task.id }}"
+                                             data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                <div>
+                                                    <p>
+                                                        {{ task.notes }}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    {% for subtask in task.subtasks.all %}
+                                                        <div class="card" style="margin: 0;">
+                                                            <div class="card-header" id="subtask{{ subtask.id }}"
+                                                                 style="margin: 0;">
+                                                                <h5 style="margin: 0;">
+                                                                    <button class="btn btn-link" type="button"
+                                                                            data-toggle="collapse"
+                                                                            data-target="#collapseSubtask{{ subtask.id }}"
+                                                                            aria-expanded="true"
+                                                                            aria-controls="collapseSubtask{{ subtask.id }}"
+                                                                            style="margin: 0;" data-toggle="tooltip"
+                                                                            data-placement="top"
+                                                                            title="{{ subtask.name }}">
+                                                                        {{ subtask.name }}
+                                                                    </button>
+                                                                </h5>
+                                                            </div>
+
+                                                            <div id="collapseSubtask{{ subtask.id }}" class="collapse"
+                                                                 aria-labelledby="subtask{{ subtask.id }}"
+                                                                 data-parent="#accordionExample">
+                                                                <div class="card-body">
+                                                                    <p>
+                                                                        {{ subtask.notes }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </div>

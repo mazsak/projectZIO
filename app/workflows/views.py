@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 
 # Create your views here.
+from workflows.models import Workflow
+
 
 def index_view(request):
     return render(request, 'pages/index.html')
@@ -54,4 +56,5 @@ def register_view(request):
 
 
 def workflows_view(request):
-    return render(request, 'pages/workflows.html')
+    context = {"workflows": Workflow.objects.all()}
+    return render(request, 'pages/workflows.html', context)
