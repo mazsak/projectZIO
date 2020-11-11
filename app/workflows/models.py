@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.db import models
+import os
 
 STATUS_VALUES = (
     ('ready', 'Ready to run'),
@@ -17,11 +18,14 @@ STATUS_VALUES = (
 class Subtask(models.Model):
     name = models.CharField(max_length=60)
     notes = models.CharField(max_length=1000)
-    script_path = models.FilePathField(path='D:\ZIO\projectZIO\skrypty')
+    script_path = models.FilePathField(path=os.path.join(os.getcwd(), 'skrypty'))
     created_on = models.DateTimeField(default=datetime.now)
     updated_on = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
+
+    def __str__(self):
+        return self.name
 
 
 class Task(models.Model):
@@ -32,6 +36,9 @@ class Task(models.Model):
     subtasks = models.ManyToManyField(Subtask)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
+
+    def __str__(self):
+        return self.name
 
 
 class Workflow(models.Model):
@@ -47,7 +54,13 @@ class Workflow(models.Model):
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
 
+    def __str__(self):
+        return self.name
+
 
 class Dictionary(models.Model):
     argument = models.CharField(max_length=100)
     eval_str = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.argument
