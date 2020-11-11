@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+from django.shortcuts import render
 
 # Create your views here.
 from workflows.models import Workflow
@@ -59,3 +60,10 @@ def workflows_view(request):
     logged_in_user = request.user
     context = {"workflows": Workflow.objects.filter(author=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
+
+
+def update_create_workflow_view(request):
+    context = {
+        'title': 'Create workflow'
+    }
+    return render(request, 'pages/create_workflow.html', context)
