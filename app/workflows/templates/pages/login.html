@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <title>Login</title>
+</head>
+<body>
+<div class="panel center">
+    <form method="post">
+        {% csrf_token %}
+        {# handle error messages and info messages#}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <div class="alert alert-success center-text notification-error">
+                    <a class="close" href="#" data-dismiss="alert"></a>
+
+                    {{ message }}
+
+                </div>
+            {% endif %}
+
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                <div class="alert alert-success center-text notification-info">
+                    <a class="close" href="#" data-dismiss="alert"></a>
+
+                    {{ message }}
+
+                </div>
+            {% endif %}
+        {% endfor %}
+    <div class="margin-30 center-text">
+        <h1>Login</h1>
+    </div>
+    <div class="margin-30">
+        <input name="login" type="text" placeholder="Login" />
+    </div>
+    <div class="margin-30">
+        <input name="password" type="password" placeholder="Password" />
+    </div>
+    <div class="margin-30 right">
+        <button>Login</button>
+    </div>
+    <div class="margin-30">
+        <p>Don't have an account? <a href="/register">Create now!</a></p>
+    </div>
+    </form>
+</div>
+</body>
+</html>

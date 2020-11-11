@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <script src="{% static 'js/register_validation.js' %}"></script>
+    <title>Register</title>
+</head>
+<body>
+<div class="panel center">
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-success center-text notification-error">
+                <a class="close" href="#" data-dismiss="alert"></a>
+
+                {{ message }}
+
+            </div>
+        {% endif %}
+        <div id="error_message" class="alert alert-success center-text notification-error"></div>
+    {% endfor %}
+    <div class="margin-30 center-text">
+        <h1>Register</h1>
+    </div>
+    <form name="registration_form" method="post" >
+        {% csrf_token %}
+        <div class="margin-30">
+            <input name="login" type="text" placeholder="Login" required onchange="validateLogin()"/>
+        </div>
+        <div class="margin-30">
+            <input name="email" type="email" placeholder="Email" required/>
+        </div>
+        <div class="margin-30">
+            <input name="password" type="password" placeholder="Password" required onchange="validatePasswords()"/>
+        </div>
+        <div class="margin-30">
+            <input name="confirm_password" type="password" placeholder="Confirm password" required onchange="validatePasswords()"/>
+        </div>
+        <a class="danger cancel" href="/login">Cancel</a>
+        <button class="success" type="submit">Create</button>
+    </form>
+</div>
+</body>
+</html>

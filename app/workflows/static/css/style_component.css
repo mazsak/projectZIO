@@ -1,0 +1,47 @@
+/* body */
+body{
+  background-color: #F2F2F2;
+  margin: 0;
+  display: flex;
+}
+
+/* button */
+button{
+  margin: 10px;
+  padding: 8px 60px;
+  background-color: #6786DC;
+  border-radius: 20px;
+  border-width: 0;
+  text-align: center;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+button:hover{
+  background-color: #2f5ad0;
+}
+
+button:active{
+  background-color: #829ce3;
+}
+
+button:focus{
+  border: none;
+  outline: none;
+}
+
+/* input */
+input{
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-size: 20px;
+  border-color: #8c8c8c;
+  width: 100%;
+}
+
+input:focus{
+  border-color: #000000;
+  outline: none;
+}
