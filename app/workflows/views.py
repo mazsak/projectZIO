@@ -14,7 +14,7 @@ def login_view(request):
     username = request.POST.get('login')
     password = request.POST.get('password')
     context = {
-        'login': None,
+        'login':  None,
         'password': None
     }
     user = authenticate(request, username=username, password=password)
@@ -25,7 +25,7 @@ def login_view(request):
     elif request.method == 'POST':
         if user is not None:
             login(request,user)
-            messages.info(request, "Account created successfully")
+            messages.info(request, "Logged in successfully")
         else:
             messages.error(request, "Username or password not correct")
     return render(request, 'pages/login.html', context)
@@ -51,3 +51,7 @@ def register_view(request):
             user = User.objects.create_user(username, email, password)
             messages.success(request, "Account created successfully")
     return render(request, 'pages/register.html', context)
+
+
+def workflows_view(request):
+    return render(request, 'pages/workflows.html')
