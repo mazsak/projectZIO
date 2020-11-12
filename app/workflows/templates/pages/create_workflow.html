@@ -223,16 +223,23 @@
                                         <div class="card-header" id="newsubtask{{ subtask.id }}"
                                              style="margin: 0;">
                                             <h5 style="margin: 0;">
-                                                <button class="btn btn-link" type="button"
-                                                        data-toggle="collapse"
-                                                        data-target="#newcollapseSubtask{{ subtask.id }}"
-                                                        aria-expanded="true"
-                                                        aria-controls="newcollapseSubtask{{ subtask.id }}"
-                                                        style="margin: 0;" data-toggle="tooltip"
-                                                        data-placement="top"
-                                                        title="{{ subtask.name }}">
-                                                    {{ subtask.name }}
-                                                </button>
+                                                <div class="row">
+                                                    <div class="col-1">
+                                                        <input name="{{ subtask.id }}" type="checkbox">
+                                                    </div>
+                                                    <div class="col">
+                                                        <button class="btn btn-link" type="button"
+                                                                data-toggle="collapse"
+                                                                data-target="#newcollapseSubtask{{ subtask.id }}"
+                                                                aria-expanded="true"
+                                                                aria-controls="newcollapseSubtask{{ subtask.id }}"
+                                                                style="margin: 0;" data-toggle="tooltip"
+                                                                data-placement="top"
+                                                                title="{{ subtask.name }}">
+                                                            {{ subtask.name }}
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </h5>
                                         </div>
 
