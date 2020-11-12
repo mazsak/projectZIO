@@ -45,12 +45,12 @@
                             <div class="accordion" style="margin: 0;">
                                 {% for task in workflow.tasks.all %}
                                     <div class="card" style="margin: 0;">
-                                        <div class="card-header" id="{{ task.id }}"
+                                        <div class="card-header" id="{{ task.id }}-{{ workflow.id }}"
                                              style="margin: 0;">
                                             <h5 style="margin: 0;">
                                                 <button class="btn btn-link " type="button" data-toggle="collapse"
-                                                        data-target="#collapse{{ task.id }}" aria-expanded="true"
-                                                        aria-controls="collapse{{ task.id }}"
+                                                        data-target="#collapse{{ task.id }}-{{ workflow.id }}" aria-expanded="true"
+                                                        aria-controls="collapse{{ task.id }}-{{ workflow.id }}"
                                                         style="margin: 0; overflow: hidden; white-space: nowrap;"
                                                         data-toggle="tooltip" data-placement="top"
                                                         title="{{ task.name }}">
@@ -59,7 +59,7 @@
                                             </h5>
                                         </div>
 
-                                        <div id="collapse{{ task.id }}" class="collapse" aria-labelledby="{{ task.id }}"
+                                        <div id="collapse{{ task.id }}-{{ workflow.id }}" class="collapse" aria-labelledby="{{ task.id }}-{{ workflow.id }}"
                                              data-parent="#accordionExample">
                                             <div class="card-body">
                                                 <div>
@@ -70,14 +70,14 @@
                                                 <div>
                                                     {% for subtask in task.subtasks.all %}
                                                         <div class="card" style="margin: 0;">
-                                                            <div class="card-header" id="subtask{{ subtask.id }}"
+                                                            <div class="card-header" id="subtask{{ subtask.id }}-{{ workflow.id }}"
                                                                  style="margin: 0;">
                                                                 <h5 style="margin: 0;">
                                                                     <button class="btn btn-link" type="button"
                                                                             data-toggle="collapse"
-                                                                            data-target="#collapseSubtask{{ subtask.id }}"
+                                                                            data-target="#collapseSubtask{{ subtask.id }}-{{ workflow.id }}"
                                                                             aria-expanded="true"
-                                                                            aria-controls="collapseSubtask{{ subtask.id }}"
+                                                                            aria-controls="collapseSubtask{{ subtask.id }}-{{ workflow.id }}"
                                                                             style="margin: 0;" data-toggle="tooltip"
                                                                             data-placement="top"
                                                                             title="{{ subtask.name }}">
@@ -86,8 +86,8 @@
                                                                 </h5>
                                                             </div>
 
-                                                            <div id="collapseSubtask{{ subtask.id }}" class="collapse"
-                                                                 aria-labelledby="subtask{{ subtask.id }}"
+                                                            <div id="collapseSubtask{{ subtask.id }}-{{ workflow.id }}" class="collapse"
+                                                                 aria-labelledby="subtask{{ subtask.id }}-{{ workflow.id }}"
                                                                  data-parent="#accordionExample">
                                                                 <div class="card-body">
                                                                     <p>
