@@ -23,6 +23,8 @@ class Subtask(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
+    skip = models.BooleanField(default=False)
+    run_with_previous = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -36,6 +38,8 @@ class Task(models.Model):
     subtasks = models.ManyToManyField(Subtask)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
+    skip = models.BooleanField(default=False)
+    run_with_previous = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -53,6 +57,8 @@ class Workflow(models.Model):
     tasks = models.ManyToManyField(Task)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
+    skip = models.BooleanField(default=False)
+    run_with_previous = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

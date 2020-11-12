@@ -24,5 +24,6 @@ urlpatterns = [
     path('register', views.register_view, name='register'),
     path('workflows', views.workflows_view, name='workflows'),
     path('create_workflow', views.update_create_workflow_view, name='create_workflow'),
+    path('create_task', views.update_create_task_view, name='create_task'),
     path('admin/', admin.site.urls),
 ]

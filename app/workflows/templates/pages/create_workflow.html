@@ -17,11 +17,13 @@
         {% include  "component/nav_bar.html" %}
     </div>
     <div style="margin-left:130px;">
+    <form method="post" name="workflow_form">
+    {% csrf_token %}
         <div class="row" style="margin-top: 20px; margin-right: 20px">
             <div class="col panel" style="margin: 10px;">
                 <div class="row">
                     <div class="col">
-                        <input name="name" type="text" placeholder="Name" required/>
+                        <input name="name_workflow" type="text" placeholder="Name" required/>
                     </div>
                     <div class="col-md-auto">
                         <a class="cancel" href="/workflows">Cancel</a>
@@ -30,9 +32,11 @@
                 </div>
                 <hr/>
                 <div>
-                    <textarea placeholder="Description" style="width: 100%; height: 300px; font-size: 20px;"></textarea>
+                    <textarea name="description_workflow" placeholder="Description"
+                              style="width: 100%; height: 300px; font-size: 20px;"></textarea>
                 </div>
             </div>
+        {% if is_update %}
             <div class="col col-5 panel" style="margin: 10px;">
                 <h3 style="font-weight: bold; margin:0 10px; overflow: hidden; white-space: nowrap;">Selected tasks</h3>
                 <hr/>
@@ -100,30 +104,22 @@
                     </div>
                 </div>
             </div>
+        {% endif %}
+        </div>
             <div class="row" style="margin-top: 20px; margin-right: 20px">
                 <div class="col panel" style="margin: 10px;">
                     <h3 style="font-weight: bold; margin:0 10px; overflow: hidden; white-space: nowrap;">Tasks</h3>
                     <hr/>
                     <div>
                         <div class="custom-control custom-switch custom-switch-xl">
-                            <input type="checkbox" class="custom-control-input" id="skipTask">
-                            <label class="custom-control-label" for="skipNewTask" style="padding-top: 5px;">Skip</label>
+                            <input name="skip_workflow" type="checkbox" class="custom-control-input" id="skipTask">
+                            <label class="custom-control-label" for="skipTask" style="padding-top: 5px;">Skip</label>
                         </div>
                         <div class="custom-control custom-switch custom-switch-xl">
-                            <input type="checkbox" class="custom-control-input" id="previousTask"
+                            <input name="previous_workflow" type="checkbox" class="custom-control-input" id="previousTask"
                                    style="height: 2.5rem; width: calc(4rem + 0.75rem);">
-                            <label class="custom-control-label" for="previousNewTask"
+                            <label class="custom-control-label" for="previousTask"
                                    style="padding-top: 5px;">Previous</label>
-                        </div>
-                    </div>
-                    <div>
-                        <h5 style="padding: 18px; border: 1px solid rgba(0,0,0,.125); border-radius: 5px; background-color: rgba(0,0,0,.03) ">
-                            Name choose task
-                        </h5>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <button style="float: right">Add</button>
                         </div>
                     </div>
                     <div>
@@ -131,138 +127,78 @@
                             <div style="height: 350px; overflow-y: scroll; margin: 0;">
                                 {% for task in tasks %}
                                     <div class="card" style="margin: 0;">
-                                    <div class="card-header" id="{{ task.id }}"
-                                         style="margin: 0;">
-                                        <h5 style="margin: 0;">
-                                            <button class="btn btn-link " type="button" data-toggle="collapse"
-                                                    data-target="#collapse{{ task.id }}" aria-expanded="true"
-                                                    aria-controls="collapse{{ task.id }}"
-                                                    style="margin: 0; overflow: hidden; white-space: nowrap;"
-                                                    data-toggle="tooltip" data-placement="top"
-                                                    title="{{ task.name }}">
-                                                {{ task.name }}
-                                            </button>
-                                        </h5>
-                                    </div>
-                                    <div id="collapse{{ task.id }}" class="collapse"
-                                         aria-labelledby="{{ task.id }}"
-                                         data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div>
-                                                <p>
-                                                    {{ task.notes }}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                {% for subtask in task.subtasks.all %}
-                                                    <div class="card" style="margin: 0;">
-                                                        <div class="card-header" id="subtask{{ subtask.id }}"
-                                                             style="margin: 0;">
-                                                            <h5 style="margin: 0;">
-                                                                <button class="btn btn-link" type="button"
-                                                                        data-toggle="collapse"
-                                                                        data-target="#collapseSubtask{{ subtask.id }}"
-                                                                        aria-expanded="true"
-                                                                        aria-controls="collapseSubtask{{ subtask.id }}"
-                                                                        style="margin: 0;" data-toggle="tooltip"
-                                                                        data-placement="top"
-                                                                        title="{{ subtask.name }}">
-                                                                    {{ subtask.name }}
-                                                                </button>
-                                                            </h5>
-                                                        </div>
-
-                                                        <div id="collapseSubtask{{ subtask.id }}" class="collapse"
-                                                             aria-labelledby="subtask{{ subtask.id }}"
-                                                             data-parent="#accordionExample">
-                                                            <div class="card-body">
-                                                                <p>
-                                                                    {{ subtask.notes }}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col panel" style="margin: 10px;">
-                    <h3 style="font-weight: bold; margin:0 10px; overflow: hidden; white-space: nowrap;">Create
-                        task</h3>
-                    <hr/>
-                    <div style="margin-bottom: 20px;">
-                        <input name="name" type="text" placeholder="Name" required/>
-                    </div>
-                    <div>
-                        <textarea placeholder="Description"
-                                  style="width: 100%; height: 150px; font-size: 20px;"></textarea>
-                    </div>
-                    <div>
-                        <div class="custom-control custom-switch custom-switch-xl">
-                            <input type="checkbox" class="custom-control-input" id="skipNewTask">
-                            <label class="custom-control-label" for="skipNewTask" style="padding-top: 5px;">Skip</label>
-                        </div>
-                        <div class="custom-control custom-switch custom-switch-xl">
-                            <input type="checkbox" class="custom-control-input" id="previousNewTask"
-                                   style="height: 2.5rem; width: calc(4rem + 0.75rem);">
-                            <label class="custom-control-label" for="previousNewTask"
-                                   style="padding-top: 5px;">Previous</label>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="border: 1px solid #F2F2F2;">
-                            <div style="height: 200px; overflow-y: scroll; margin: 0;">
-                                {% for subtask in subtasks %}
-                                    <div class="card" style="margin: 0;">
-                                        <div class="card-header" id="newsubtask{{ subtask.id }}"
+                                        <div class="card-header" id="{{ task.id }}"
                                              style="margin: 0;">
                                             <h5 style="margin: 0;">
                                                 <div class="row">
                                                     <div class="col-1">
-                                                        <input name="{{ subtask.id }}" type="checkbox">
+                                                        <input name="{{ task.id }}" type="checkbox">
                                                     </div>
                                                     <div class="col">
-                                                        <button class="btn btn-link" type="button"
+                                                        <button class="btn btn-link " type="button"
                                                                 data-toggle="collapse"
-                                                                data-target="#newcollapseSubtask{{ subtask.id }}"
+                                                                data-target="#collapse{{ task.id }}"
                                                                 aria-expanded="true"
-                                                                aria-controls="newcollapseSubtask{{ subtask.id }}"
-                                                                style="margin: 0;" data-toggle="tooltip"
-                                                                data-placement="top"
-                                                                title="{{ subtask.name }}">
-                                                            {{ subtask.name }}
+                                                                aria-controls="collapse{{ task.id }}"
+                                                                style="margin: 0; overflow: hidden; white-space: nowrap;"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="{{ task.name }}">
+                                                            {{ task.name }}
                                                         </button>
                                                     </div>
                                                 </div>
                                             </h5>
                                         </div>
-
-                                        <div id="newcollapseSubtask{{ subtask.id }}" class="collapse"
-                                             aria-labelledby="newsubtask{{ subtask.id }}"
+                                        <div id="collapse{{ task.id }}" class="collapse"
+                                             aria-labelledby="{{ task.id }}"
                                              data-parent="#accordionExample">
                                             <div class="card-body">
-                                                <p>
-                                                    {{ subtask.notes }}
-                                                </p>
+                                                <div>
+                                                    <p>
+                                                        {{ task.notes }}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    {% for subtask in task.subtasks.all %}
+                                                        <div class="card" style="margin: 0;">
+                                                            <div class="card-header" id="subtask{{ subtask.id }}"
+                                                                 style="margin: 0;">
+                                                                <h5 style="margin: 0;">
+                                                                    <button class="btn btn-link" type="button"
+                                                                            data-toggle="collapse"
+                                                                            data-target="#collapseSubtask{{ subtask.id }}"
+                                                                            aria-expanded="true"
+                                                                            aria-controls="collapseSubtask{{ subtask.id }}"
+                                                                            style="margin: 0;" data-toggle="tooltip"
+                                                                            data-placement="top"
+                                                                            title="{{ subtask.name }}">
+                                                                        {{ subtask.name }}
+                                                                    </button>
+                                                                </h5>
+                                                            </div>
+
+                                                            <div id="collapseSubtask{{ subtask.id }}" class="collapse"
+                                                                 aria-labelledby="subtask{{ subtask.id }}"
+                                                                 data-parent="#accordionExample">
+                                                                <div class="card-body">
+                                                                    <p>
+                                                                        {{ subtask.notes }}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 {% endfor %}
                             </div>
                         </div>
-                        <div>
-                            <button style="float: right">Create</button>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 </body>
