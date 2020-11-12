@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 
 # Create your views here.
-from workflows.models import Workflow
+from workflows.models import Workflow, Task, Subtask
 
 
 def index_view(request):
@@ -64,6 +64,8 @@ def workflows_view(request):
 
 def update_create_workflow_view(request):
     context = {
-        'title': 'Create workflow'
+        'title': 'Create workflow',
+        'tasks': Task.objects.all(),
+        'subtasks': Subtask.objects.all()
     }
     return render(request, 'pages/create_workflow.html', context)
