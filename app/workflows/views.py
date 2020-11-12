@@ -53,13 +53,13 @@ def register_view(request):
         else:
             user = User.objects.create_user(username, email, password)
             messages.success(request, "Account created successfully")
-            return redirect('/workflows')
+            return redirect('/login')
     return render(request, 'pages/register.html', context)
 
 
 def workflows_view(request):
     logged_in_user = request.user
-    context = {"workflows": Workflow.objects.filter(author=logged_in_user)}
+    context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
 
 
@@ -81,6 +81,7 @@ def update_create_workflow_view(request):
         workflow.tasks.set(tasks)
         workflow.users.set(list(User.objects.all()))
         workflow.save()
+        return redirect('/workflows')
 
     context = {
         'is_update': False,
@@ -106,6 +107,7 @@ def update_create_task_view(request):
                                    run_with_previous=previous_task)
         task.subtasks.set(subtasks)
         task.save()
+        return redirect('/workflows')
     context = {
         'title': 'Create task',
         'subtasks': Subtask.objects.all()
