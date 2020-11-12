@@ -1,0 +1,43 @@
+{% load static %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="{% static 'css/style_component.css' %}">
+{% block nav_bar %}
+    <nav>
+        <ul>
+            <li>
+                <a href="/login">
+                    <div>
+                        <i class="glyphicon glyphicon-user"></i>
+                        <p>{{request.user.username}}</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a class="active" href="/workflows">
+                    <div>
+                        <i class="glyphicon glyphicon-th-list"></i>
+                        <p>Workflow</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="/create_workflow">
+                    <div>
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <p>Add</p>
+                        <p>Workflow</p>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="/create_task">
+                    <div>
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <p>Add</p>
+                        <p>Task</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
