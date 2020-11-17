@@ -62,6 +62,10 @@ def workflows_view(request):
     context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
 
+def workflow_view(request, id):
+    context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
+    return render(request, 'pages/workflow.html', context)
+
 
 def update_create_workflow_view(request):
     if request.method == "POST":
