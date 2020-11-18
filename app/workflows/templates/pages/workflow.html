@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>{{ workflow.name }}</title>
+</head>
+<body>
+<div>
+    {% include  "component/nav_bar.html" %}
+</div>
+<div style="width: 100%">
+    <div style="margin-left:130px;">
+        <div class="row" style="margin-right: 20px; margin-top: 30px;margin-bottom: 30px">
+            <div class="col">
+                <div class="panel" style="min-width: 400px;">
+                    <div class="row">
+                        <button>Select all</button>
+                        <button>Execute selected</button>
+                        <button>Pause selected</button>
+                        <button>Stop selected</button>
+                        <button>Delete selected</button>
+                    </div>
+                    <hr/>
+                    <div class="row" style="margin: 10px">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Select</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in workflow.users.all %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    <input id="{{ user.id }}" type="checkbox">
+                                </td>
+                                <td>Tu bedzie status</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="panel" style="min-width: 200px">
+                    <div class="accordion" style="margin: 0;">
+                        {% for task in workflow.tasks.all %}
+                            <div class="card" style="margin: 0;">
+                            <div class="card-header row" id="{{ task.id }}-{{ workflow.id }}"
+                                 style="margin: 0;">
+                                <div class="col">
+                                    <h5 style="margin: 0;">
+                                        <button class="btn btn-link " type="button" data-toggle="collapse"
+                                                data-target="#collapse{{ task.id }}-{{ workflow.id }}"
+                                                aria-expanded="true"
+                                                aria-controls="collapse{{ task.id }}-{{ workflow.id }}"
+                                                style="margin: 0; overflow: hidden; white-space: nowrap;"
+                                                data-toggle="tooltip" data-placement="top"
+                                                title="{{ task.name }}">
+                                            {{ task.name }}
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div class="col">
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input name="skip_{{ task.id }}" type="checkbox" class="custom-control-input"
+                                                {% if task.skip %}
+                                               checked
+                                                {% endif %}
+                                               id="skipTask{{ task.id }}">
+                                        <label class="custom-control-label" for="skipTask{{ task.id }}"
+                                               style="padding-top: 5px;">Skip</label>
+                                    </div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input name="previous_{{ task.id }}" type="checkbox"
+                                               class="custom-control-input"
+                                               id="previousTask{{ task.id }}"
+                                                {% if task.run_with_previous %}
+                                               checked
+                                                {% endif %}
+                                               style="height: 2.5rem; width: calc(4rem + 0.75rem);">
+                                        <label class="custom-control-label" for="previousTask{{ task.id }}"
+                                               style="padding-top: 5px;">Previous</label>
+                                    </div>
+                                </div>
+
+                                <div id="collapse{{ task.id }}-{{ workflow.id }}" class="collapse"
+                                     aria-labelledby="{{ task.id }}-{{ workflow.id }}"
+                                     data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div>
+                                            <p>
+                                                {{ task.notes }}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            {% for subtask in task.subtasks.all %}
+                                                <div class="card" style="margin: 0;">
+                                                    <div class="card-header row"
+                                                         id="subtask{{ subtask.id }}-{{ task.id }}"
+                                                         style="margin: 0;">
+                                                        <div class="col">
+                                                        <h5 style="margin: 0;">
+                                                            <button class="btn btn-link" type="button"
+                                                                    data-toggle="collapse"
+                                                                    data-target="#collapseSubtask{{ subtask.id }}-{{ task.id }}"
+                                                                    aria-expanded="true"
+                                                                    aria-controls="collapseSubtask{{ subtask.id }}-{{ task.id }}"
+                                                                    style="margin: 0;" data-toggle="tooltip"
+                                                                    data-placement="top"
+                                                                    title="{{ subtask.name }}">
+                                                                {{ subtask.name }}
+                                                            </button>
+                                                        </h5>
+                                                        </div>
+                                <div class="col">
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input name="skip_{{ subtask.id }}-{{ task.id }}" type="checkbox" class="custom-control-input"
+                                                {% if subtask.skip %}
+                                               checked
+                                                {% endif %}
+                                               id="skipTask{{ subtask.id }}-{{ task.id }}">
+                                        <label class="custom-control-label" for="skipTask{{ subtask.id }}-{{ task.id }}"
+                                               style="padding-top: 5px;">Skip</label>
+                                    </div>
+                                    <div class="custom-control custom-switch custom-switch-xl">
+                                        <input name="previous_{{ subtask.id }}-{{ task.id }}" type="checkbox"
+                                               class="custom-control-input"
+                                               id="previousTask{{ subtask.id }}-{{ task.id }}"
+                                                {% if subtask.run_with_previous %}
+                                               checked
+                                                {% endif %}
+                                               style="height: 2.5rem; width: calc(4rem + 0.75rem);">
+                                        <label class="custom-control-label" for="previousTask{{ subtask.id }}-{{ task.id }}"
+                                               style="padding-top: 5px;">Previous</label>
+                                    </div>
+                                </div>
+                                                    </div>
+
+                                                    <div id="collapseSubtask{{ subtask.id }}-{{ task.id }}"
+                                                         class="collapse"
+                                                         aria-labelledby="subtask{{ subtask.id }}-{{ task.id }}"
+                                                         data-parent="#accordionExample">
+                                                        <div class="card-body">
+                                                            <p>
+                                                                {{ subtask.notes }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
