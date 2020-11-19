@@ -140,3 +140,8 @@ def account_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/login')
+
+
+def delete_users_from_workflow_view(request, id):
+    print("Work in progress")
+    #TODO Add removing users from workflow
