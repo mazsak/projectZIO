@@ -1,10 +1,13 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import check_password
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.http import HttpResponse
+from django.shortcuts import redirect
 from django.shortcuts import render
-
 # Create your views here.
 from workflows.models import Workflow, Task, Subtask
 
@@ -62,6 +65,7 @@ def workflows_view(request):
     context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
 
+
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
     return render(request, 'pages/workflow.html', context)
@@ -117,3 +121,27 @@ def update_create_task_view(request):
         'subtasks': Subtask.objects.all()
     }
     return render(request, 'pages/create_task.html', context)
+
+
+def account_view(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if check_password(old_password, request.user.password):
+            if new_password == confirm_password:
+                updated_user = request.user
+                updated_user.set_password(new_password)
+                updated_user.save()
+                return redirect('/login')
+    return render(request, 'pages/account.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('/login')
+
+
+def delete_users_from_workflow_view(request, id):
+    print("Work in progress")
+    #TODO Add removing users from workflow

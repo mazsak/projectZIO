@@ -24,7 +24,11 @@ urlpatterns = [
     path('register', views.register_view, name='register'),
     path('workflows', views.workflows_view, name='workflows'),
     path('workflows/<int:id>', views.workflow_view, name='workflow'),
+    path('account', views.account_view, name='account'),
     path('create_workflow', views.update_create_workflow_view, name='create_workflow'),
     path('create_task', views.update_create_task_view, name='create_task'),
+    path('logout', views.logout_view, name='logout'),
+    path('czarymary/hokus/pokus/json/mendoza/zrob/endpointa/<str:id>', views.delete_users_from_workflow_view,
+         name='delete_view'),
     path('admin/', admin.site.urls),
 ]

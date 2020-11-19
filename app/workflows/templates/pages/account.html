@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>{{ request.user.username }}</title>
+</head>
+<body>
+<div style="width: 100%;">
+    <div>
+        {% include  "component/nav_bar.html" %}
+    </div>
+    <div style="margin-left:130px;">
+        <div class="row"
+             style="min-width: 600px; max-width: 600px; margin-top: 30px; margin-right: 30px; margin-bottom: 30px">
+            <div class="col">
+                <div class="panel">
+                    <form method="post" name="change_password_form">
+                        {% csrf_token %}
+                        <div style="margin: 10px;">
+                            <input name="old_password" type="password" placeholder="Old password">
+                        </div>
+                        <div style="margin: 10px;">
+                            <input name="new_password" type="password" placeholder="New password">
+                        </div>
+                        <div style="margin: 10px;">
+                            <input name="confirm_password" type="password" placeholder="confirm new password">
+                        </div>
+                        <button>Change</button>
+                        <hr/>
+                    </form>
+                    <a class="cancel" href="/logout" style="background-color: #6786DC; color: white;">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

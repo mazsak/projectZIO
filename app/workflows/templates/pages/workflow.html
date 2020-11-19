@@ -10,6 +10,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>{{ workflow.name }}</title>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
 <div>
@@ -21,11 +23,11 @@
             <div class="col">
                 <div class="panel" style="min-width: 400px;">
                     <div class="row">
-                        <button>Select all</button>
-                        <button>Execute selected</button>
-                        <button>Pause selected</button>
-                        <button>Stop selected</button>
-                        <button>Delete selected</button>
+                        <button onclick="selectAllAction()">Select all</button>
+                        <button onclick="executeSelectedAction()">Execute selected</button>
+                        <button onclick="pauseSelectedAction()">Pause selected</button>
+                        <button onclick="stopSelectedAction()">Stop selected</button>
+                        <button onclick="deleteSelectedAction()">Delete selected</button>
                     </div>
                     <hr/>
                     <div class="row" style="margin: 10px">
@@ -37,12 +39,12 @@
                                 <th scope="col">Status</th>
                             </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="users">
                             {% for user in workflow.users.all %}
                             <tr>
                                 <td>{{ user.username }}</td>
                                 <td>
-                                    <input id="{{ user.id }}" type="checkbox">
+                                    <input name="user_checkbox" id="{{ user.id }}" type="checkbox">
                                 </td>
                                 <td>Tu bedzie status</td>
                             </tr>
