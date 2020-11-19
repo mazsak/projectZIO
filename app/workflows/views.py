@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import check_password
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -123,7 +124,18 @@ def update_create_task_view(request):
 
 
 def account_view(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if check_password(old_password, request.user.password):
+            if new_password == confirm_password:
+                updated_user = request.user
+                updated_user.set_password(new_password)
+                updated_user.save()
+                return redirect('/login')
     return render(request, 'pages/account.html')
+
 
 def logout_view(request):
     logout(request)
