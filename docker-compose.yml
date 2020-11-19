@@ -1,16 +1,28 @@
 version: '3'
 services: 
     app:
-        build: .
+        build: 
+            context: .
+            dockerfile: Dockerfile
         ports:
             - "8080:8000"
         container_name: django_app
         command: python manage.py runserver 0.0.0.0:8000
+    worker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: celery_worker
+        command: celery -A app worker --loglevel=info
+        links:
+            - broker
+        depends_on: 
+            - broker
     broker:
         image: rabbitmq:3.8.9-alpine
         ports:
-            - 5673:5672
-        container_name: rabbitmq_
+            - "5672:5672"
+        container_name: rabbitmq_broker
     nextflow:
         image: nextflow/nextflow:latest
         container_name: nextflow_
