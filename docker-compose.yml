@@ -9,7 +9,7 @@ services:
     broker:
         image: rabbitmq:3.8.9-alpine
         ports:
-            - 5673:5672
+            - 5672:5672
         container_name: rabbitmq_
     nextflow:
         image: nextflow/nextflow:latest
