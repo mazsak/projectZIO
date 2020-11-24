@@ -28,7 +28,7 @@ urlpatterns = [
     path('create_workflow', views.update_create_workflow_view, name='create_workflow'),
     path('create_task', views.update_create_task_view, name='create_task'),
     path('logout', views.logout_view, name='logout'),
-    path('czarymary/hokus/pokus/json/mendoza/zrob/endpointa/<str:id>', views.delete_users_from_workflow_view,
+    path('czarymary/hokus/pokus/json/mendoza/zrob/endpointa/<int:id>', views.delete_users_from_workflow_view,
          name='delete_view'),
     path('admin/', admin.site.urls),
 ]
