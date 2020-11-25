@@ -1,0 +1,12 @@
+process CatFile{
+    echo true
+
+    output:
+    stdout into results
+
+    '''
+    echo "Hello word"
+    '''
+}
+results
+    .collectFile(name: "/usr/src/cat_file.txt")

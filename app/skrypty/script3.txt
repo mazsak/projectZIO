@@ -1,0 +1,14 @@
+process Numbers{
+    echo true
+
+    output:
+    stdout into results
+
+    '''
+    #!/usr/bin/env python
+    for i in range(5):
+        print(f'Jman - {i}')
+    '''
+}
+results
+    .collectFile(name: "/usr/src/numbers.txt")

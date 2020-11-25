@@ -1,8 +1,8 @@
+import os
 from datetime import datetime
 
 from django.conf import settings
 from django.db import models
-import os
 
 STATUS_VALUES = (
     ('ready', 'Ready to run'),
@@ -12,6 +12,30 @@ STATUS_VALUES = (
     ('skipped', 'Skipped running'),
     ('failed', 'Failed to run'),
 )
+
+
+class SubtaskBase(models.Model):
+    name = models.CharField(max_length=60)
+    notes = models.CharField(max_length=1000)
+    script_path = models.FilePathField(path=os.path.join(os.getcwd(), 'skrypty'))
+    created_on = models.DateTimeField(default=datetime.now)
+    updated_on = models.DateTimeField(auto_now=True)
+    skip = models.BooleanField(default=False)
+    run_with_previous = models.BooleanField(default=False)
+    def __str__(self):
+        return self.name
+
+
+class TaskBase(models.Model):
+    name = models.CharField(max_length=60)
+    notes = models.CharField(max_length=1000)
+    created_on = models.DateTimeField(default=datetime.now)
+    updated_on = models.DateTimeField(auto_now=True)
+    subtasks = models.ManyToManyField(SubtaskBase)
+    skip = models.BooleanField(default=False)
+    run_with_previous = models.BooleanField(default=False)
+    def __str__(self):
+        return self.name
 
 
 # Create your models here.
@@ -57,8 +81,6 @@ class Workflow(models.Model):
     tasks = models.ManyToManyField(Task)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='ready')
-    skip = models.BooleanField(default=False)
-    run_with_previous = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

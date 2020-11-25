@@ -24,7 +24,7 @@
                 <div class="panel" style="min-width: 400px;">
                     <div class="row">
                         <button onclick="selectAllAction()">Select all</button>
-                        <button onclick="executeSelectedAction()">Execute selected</button>
+                        <button onclick="executeSelectedAction({{ workflow.id }})">Execute selected</button>
                         <button onclick="pauseSelectedAction()">Pause selected</button>
                         <button onclick="stopSelectedAction()">Stop selected</button>
                         <button onclick="deleteSelectedAction({{ workflow.id }})">Delete selected</button>
@@ -46,7 +46,7 @@
                                 <td>
                                     <input name="user_checkbox" id="{{ user.id }}" type="checkbox">
                                 </td>
-                                <td>Tu bedzie status</td>
+                                <td id="status_{{ user.id }}">  </td>
                             </tr>
                             {% endfor %}
                             </tbody>
@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="skip_{{ task.id }}" type="checkbox" class="custom-control-input"
+                                        <input name="skip_{{ task.id }}" type="checkbox" class="custom-control-input" onclick="updateWrokflow({{ task.id }}, 'task', 'skip')"
                                                 {% if task.skip %}
                                                checked
                                                 {% endif %}
@@ -85,7 +85,7 @@
                                                style="padding-top: 5px;">Skip</label>
                                     </div>
                                     <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="previous_{{ task.id }}" type="checkbox"
+                                        <input name="previous_{{ task.id }}" type="checkbox" onclick="updateWrokflow({{ task.id }}, 'task', 'previous')"
                                                class="custom-control-input"
                                                id="previousTask{{ task.id }}"
                                                 {% if task.run_with_previous %}
@@ -128,7 +128,7 @@
                                                         </div>
                                 <div class="col">
                                     <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="skip_{{ subtask.id }}-{{ task.id }}" type="checkbox" class="custom-control-input"
+                                        <input name="skip_{{ subtask.id }}-{{ task.id }}" type="checkbox" class="custom-control-input" onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'skip')"
                                                 {% if subtask.skip %}
                                                checked
                                                 {% endif %}
@@ -137,7 +137,7 @@
                                                style="padding-top: 5px;">Skip</label>
                                     </div>
                                     <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="previous_{{ subtask.id }}-{{ task.id }}" type="checkbox"
+                                        <input name="previous_{{ subtask.id }}-{{ task.id }}" type="checkbox" onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'previous')"
                                                class="custom-control-input"
                                                id="previousTask{{ subtask.id }}-{{ task.id }}"
                                                 {% if subtask.run_with_previous %}

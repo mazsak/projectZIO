@@ -30,5 +30,8 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('czarymary/hokus/pokus/json/mendoza/zrob/endpointa/<int:id>', views.delete_users_from_workflow_view,
          name='delete_view'),
+    path('workflows/start/<int:id>', views.workflow_start_view, name='workflow_start_view'),
+    path('workflows/status', views.workflow_status_view, name='workflow_status_view'),
+    path('workflows/update', views.workflow_update_view, name='workflow_update_view'),
     path('admin/', admin.site.urls),
 ]
