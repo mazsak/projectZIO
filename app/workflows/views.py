@@ -62,6 +62,7 @@ def register_view(request):
             return redirect('/login')
     return render(request, 'pages/register.html', context)
 
+
 @login_required
 @permission_required("workflows.view_workflow", raise_exception=True)
 def workflows_view(request):
@@ -69,11 +70,14 @@ def workflows_view(request):
     context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
 
+
+@login_required
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
     return render(request, 'pages/workflow.html', context)
 
 
+@login_required
 def update_create_workflow_view(request):
     if request.method == "POST":
         name_workflow = request.POST.get('name_workflow')
@@ -124,6 +128,7 @@ def update_create_workflow_view(request):
     return render(request, 'pages/create_workflow.html', context)
 
 
+@login_required
 def update_create_task_view(request):
     if request.method == "POST":
         name_task = request.POST.get('name_task')
@@ -148,6 +153,7 @@ def update_create_task_view(request):
     return render(request, 'pages/create_task.html', context)
 
 
+@login_required
 def account_view(request):
     if request.method == 'POST':
         old_password = request.POST.get('old_password')
@@ -167,11 +173,13 @@ def logout_view(request):
     return redirect('/login')
 
 
+@login_required
 def delete_users_from_workflow_view(request, id):
     print("Work in progress")
     # TODO Add removing users from workflow
 
 
+@login_required
 def workflow_start_view(request, id):
     ids = request.POST.get('ids')
     workflow = list(Workflow.objects.filter(id=id))[0]
@@ -218,6 +226,7 @@ def workflow_start_view(request, id):
     return HttpResponse("g().get()", status=200)
 
 
+@login_required
 def workflow_update_view(request):
     body = eval(request.body)
 
@@ -234,6 +243,7 @@ def workflow_update_view(request):
     return HttpResponse('Update', status=200)
 
 
+@login_required
 def workflow_status_view(request):
     body = eval(request.body)
     response = {}
