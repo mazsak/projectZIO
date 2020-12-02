@@ -8,12 +8,25 @@ class Command(BaseCommand):
     help = 'Creates User and Workflow Manager groups and gives them proper permissions.'
 
     BASIC_USER_PERMISSIONS = [
+        "change_workflow",
+        "delete_workflow",
+        "execute_workflow",
+        "view_dictionary",
+        "view_subtask",
+        "view_task",
         "view_workflow",
     ]
 
     WORKFLOW_MANAGER_PERMISSIONS = BASIC_USER_PERMISSIONS + [
-        "execute_workflow",
+        "add_subtask",
+        "add_task",
+        "add_workflow",
         "assign_workflow",
+        "change_task",
+        "delete_subtask",
+        "edit_subtask",
+        "edit_task",
+        "upload_script",
     ]
     
     
