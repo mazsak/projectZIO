@@ -1,15 +1,16 @@
+from datetime import datetime
+
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import check_password
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from celery import chain, group, signature
+from app.tasks import launch_task
 # Create your views here.
-from workflows.models import Workflow, Task, Subtask
+from workflows.models import Workflow, Task, TaskBase, Subtask, SubtaskBase
 
 
 def index_view(request):
@@ -75,16 +76,38 @@ def update_create_workflow_view(request):
     if request.method == "POST":
         name_workflow = request.POST.get('name_workflow')
         description_workflow = request.POST.get('description_workflow')
-        skip_workflow = bool(request.POST.get('skip_workflow'))
-        previous_workflow = bool(request.POST.get('previous_workflow'))
-        tasks = [Task.objects.filter(id=x)[0] for x in request.POST.keys() if x.isdigit()]
+        # skip_workflow = bool(request.POST.get('skip_workflow'))
+        # previous_workflow = bool(request.POST.get('previous_workflow'))
+        tasks_base = [TaskBase.objects.filter(id=x)[0] for x in request.POST.keys() if x.isdigit()]
+        tasks = []
+        for task_base in tasks_base:
+            subtasks = []
+            for subtask_base in task_base.subtasks.all():
+                subtasks.append(Subtask.objects.create(name=subtask_base.name,
+                                                       notes=subtask_base.notes,
+                                                       script_path=subtask_base.script_path,
+                                                       created_on=subtask_base.created_on,
+                                                       updated_on=datetime.now,
+                                                       skip=subtask_base.skip,
+                                                       run_with_previous=subtask_base.run_with_previous))
+            task = Task.objects.create(
+                name=task_base.name,
+                notes=task_base.notes,
+                created_on=task_base.created_on,
+                updated_on=datetime.now,
+                skip=task_base.skip,
+                run_with_previous=task_base.run_with_previous
+            )
+            task.subtasks.set(subtasks)
+            task.save()
+            tasks.append(task)
         # TODO add custom response
         if not tasks:
             return HttpResponse(status=400)
         workflow = Workflow.objects.create(name=name_workflow,
                                            notes=description_workflow,
-                                           skip=skip_workflow,
-                                           run_with_previous=previous_workflow,
+                                           # skip=skip_workflow,
+                                           # run_with_previous=previous_workflow,
                                            author=request.user)
         workflow.tasks.set(tasks)
         workflow.users.set(list(User.objects.all()))
@@ -94,7 +117,7 @@ def update_create_workflow_view(request):
     context = {
         'is_update': False,
         'title': 'Create workflow',
-        'tasks': Task.objects.all(),
+        'tasks': TaskBase.objects.all(),
     }
     return render(request, 'pages/create_workflow.html', context)
 
@@ -105,20 +128,20 @@ def update_create_task_view(request):
         description_task = request.POST.get('description_task')
         skip_task = bool(request.POST.get('skip_task'))
         previous_task = bool(request.POST.get('previous_task'))
-        subtasks = [Subtask.objects.filter(id=x)[0] for x in request.POST.keys() if x.isdigit()]
+        subtasks = [SubtaskBase.objects.filter(id=x)[0] for x in request.POST.keys() if x.isdigit()]
         # TODO add custom response
         if not subtasks:
             return HttpResponse(status=400)
-        task = Task.objects.create(name=name_task,
-                                   notes=description_task,
-                                   skip=skip_task,
-                                   run_with_previous=previous_task)
+        task = TaskBase.objects.create(name=name_task,
+                                       notes=description_task,
+                                       skip=skip_task,
+                                       run_with_previous=previous_task)
         task.subtasks.set(subtasks)
         task.save()
         return redirect('/workflows')
     context = {
         'title': 'Create task',
-        'subtasks': Subtask.objects.all()
+        'subtasks': SubtaskBase.objects.all()
     }
     return render(request, 'pages/create_task.html', context)
 
@@ -144,4 +167,78 @@ def logout_view(request):
 
 def delete_users_from_workflow_view(request, id):
     print("Work in progress")
-    #TODO Add removing users from workflow
+    # TODO Add removing users from workflow
+
+
+def workflow_start_view(request, id):
+    ids = request.POST.get('ids')
+    workflow = list(Workflow.objects.filter(id=id))[0]
+
+    # response = []
+    tasks = []
+    tasks_with_prev = []
+    for task in workflow.tasks.all():
+        if not task.skip:
+            task.status = "PENDING"
+            for subtask in task.subtasks.all():
+                if not subtask.skip:
+                    subtask.status = 'PENDING'
+                else:
+                    subtask.status = 'SKIPPED'
+                subtask.save()
+            if task.run_with_previous:
+                tasks_with_prev.append(task)
+            else:
+                if tasks_with_prev:
+                    tasks.append(tasks_with_prev)
+                tasks_with_prev = [task]
+        else:
+            task.status = "SKIPPED"
+            for subtask in task.subtasks.all():
+                subtask.status = 'SKIPPED'
+                subtask.save()
+        task.save()
+    tasks.append(tasks_with_prev)
+    # group = 'chain('
+    # for tasks_group in tasks:
+    #     group += 'group(['
+    #     for task in tasks_group:
+    #         group += 'launch_task.s({"task_id":' + str(task.id) + '}), '
+    #     group = group[:-2]
+    #     group += '])(), '
+    # group = group[:-2]
+    # group += ').apply_async()'
+    # print("\n\n\n", group, '\n\n\n')
+    # eval(group)
+    ch = chain(*[group(*[launch_task.s({'task_id': task.id}) for task in tasks_group]) for tasks_group in tasks])\
+        .apply_async()
+
+    return HttpResponse("g().get()", status=200)
+
+
+def workflow_update_view(request):
+    body = eval(request.body)
+
+    if body['type'] == 'subtask':
+        obj = list(Subtask.objects.filter(id=body['id']))[0]
+    elif body['type'] == 'task':
+        obj = list(Task.objects.filter(id=body['id']))[0]
+
+    if body['update'] == 'skip':
+        obj.skip = not obj.skip
+    elif body['update'] == 'previous':
+        obj.run_with_previous = not obj.run_with_previous
+    obj.save()
+    return HttpResponse('Update', status=200)
+
+
+def workflow_status_view(request):
+    body = eval(request.body)
+    response = {}
+    for task in list(Workflow.objects.filter(id=body['id']))[0].tasks.all():
+        if not task.skip:
+            response[f'Task-{task.name}{task.id}'] = task.status
+            for subtask in task.subtasks.all():
+                if not subtask.skip:
+                    response[f'{subtask.name}-{subtask.id}'] = subtask.status
+    return HttpResponse(str(response), 200)

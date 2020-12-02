@@ -1,0 +1,12 @@
+process ResultLs{
+    echo true
+
+    output:
+    stdout into results
+
+    '''
+    ls -l /usr/src
+    '''
+}
+results
+    .collectFile(name: "/usr/src/result_ls.txt")

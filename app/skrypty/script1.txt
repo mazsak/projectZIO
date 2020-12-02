@@ -1,0 +1,16 @@
+process Plus{
+    echo true
+
+    output:
+    stdout into results
+
+    '''
+    #!/usr/bin/env python
+    import time
+
+    print(f"25+45={25+45}")
+    time.sleep(10)
+    '''
+}
+results
+    .collectFile(name: "/usr/src/test_idsub_idurs.txt")

@@ -1,0 +1,17 @@
+process Numbers{
+    echo true
+
+    output:
+    stdout into results
+
+    '''
+    #!/usr/bin/env python
+    import time
+
+    for i in range(5):
+        print(f'Jman - {i}')
+    time.slepp(10)
+    '''
+}
+results
+    .collectFile(name: "/usr/src/numbers.txt")
