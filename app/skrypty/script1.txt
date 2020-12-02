@@ -6,7 +6,10 @@ process Plus{
 
     '''
     #!/usr/bin/env python
+    import time
+
     print(f"25+45={25+45}")
+    time.sleep(10)
     '''
 }
 results

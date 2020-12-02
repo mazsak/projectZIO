@@ -5,12 +5,13 @@ from django.conf import settings
 from django.db import models
 
 STATUS_VALUES = (
-    ('ready', 'Ready to run'),
-    ('running', 'Running right now'),
-    ('halted', 'Halted running'),
-    ('in_queue', 'Waiting in queue'),
-    ('skipped', 'Skipped running'),
-    ('failed', 'Failed to run'),
+    ('READY', 'Ready to run'),
+    ('STARTED', 'Running right now'),
+    ('HALTED', 'Halted running'),
+    ('PENDING', 'Waiting in queue'),
+    ('SKIPPED', 'Skipped running'),
+    ('FAILURE', 'Failed to run'),
+    ('SUCCESS', 'Finished successfully'),
 )
 
 
@@ -46,7 +47,7 @@ class Subtask(models.Model):
     created_on = models.DateTimeField(default=datetime.now)
     updated_on = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
-                              default='ready')
+                              default='READY')
     skip = models.BooleanField(default=False)
     run_with_previous = models.BooleanField(default=False)
 
@@ -61,7 +62,7 @@ class Task(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     subtasks = models.ManyToManyField(Subtask)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
-                              default='ready')
+                              default='READY')
     skip = models.BooleanField(default=False)
     run_with_previous = models.BooleanField(default=False)
 
@@ -80,7 +81,7 @@ class Workflow(models.Model):
                                    related_name='users')
     tasks = models.ManyToManyField(Task)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
-                              default='ready')
+                              default='READY')
 
     def __str__(self):
         return self.name

@@ -1,8 +1,5 @@
 from datetime import datetime
 
-# from app.tasks import launch
-from random import Random
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password
@@ -10,6 +7,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from celery import chain, group, signature
+from app.tasks import launch_task
 # Create your views here.
 from workflows.models import Workflow, Task, TaskBase, Subtask, SubtaskBase
 
@@ -175,48 +174,46 @@ def workflow_start_view(request, id):
     ids = request.POST.get('ids')
     workflow = list(Workflow.objects.filter(id=id))[0]
 
-    response = []
+    # response = []
     tasks = []
     tasks_with_prev = []
     for task in workflow.tasks.all():
-        print(task)
         if not task.skip:
+            task.status = "PENDING"
+            for subtask in task.subtasks.all():
+                if not subtask.skip:
+                    subtask.status = 'PENDING'
+                else:
+                    subtask.status = 'SKIPPED'
+                subtask.save()
             if task.run_with_previous:
                 tasks_with_prev.append(task)
             else:
                 if tasks_with_prev:
                     tasks.append(tasks_with_prev)
                 tasks_with_prev = [task]
-    tasks.append(tasks_with_prev)
-
-    subtasks = []
-    for tasks_prev in tasks:
-        subtask_with_prev = []
-        for task in tasks_prev:
+        else:
+            task.status = "SKIPPED"
             for subtask in task.subtasks.all():
-                if not subtask.skip:
-                    if subtask.run_with_previous:
-                        subtask_with_prev.append(subtask)
-                    else:
-                        if subtask_with_prev:
-                            subtasks.append(subtask_with_prev)
-                        subtask_with_prev = [subtask]
-        subtasks.append(subtask_with_prev)
-        # for subtask in task.subtasks.all():
-        #     if not subtask.skip:
-        #         if subtask.run_with_previous:
-        #             res = launch.delay({
-        #                 'script': subtask.script_path
-        #             })
-        #         else:
-        #             res = launch.delay({
-        #                 'script': subtask.script_path
-        #             })
-        #             # res.get()
-        #         # print(task, subtask, res.status)
-        #         response.append(res)
-    # print("Response", response)
-    return HttpResponse('STARTED', status=200)
+                subtask.status = 'SKIPPED'
+                subtask.save()
+        task.save()
+    tasks.append(tasks_with_prev)
+    # group = 'chain('
+    # for tasks_group in tasks:
+    #     group += 'group(['
+    #     for task in tasks_group:
+    #         group += 'launch_task.s({"task_id":' + str(task.id) + '}), '
+    #     group = group[:-2]
+    #     group += '])(), '
+    # group = group[:-2]
+    # group += ').apply_async()'
+    # print("\n\n\n", group, '\n\n\n')
+    # eval(group)
+    ch = chain(*[group(*[launch_task.s({'task_id': task.id}) for task in tasks_group]) for tasks_group in tasks])\
+        .apply_async()
+
+    return HttpResponse("g().get()", status=200)
 
 
 def workflow_update_view(request):
@@ -237,4 +234,11 @@ def workflow_update_view(request):
 
 def workflow_status_view(request):
     body = eval(request.body)
-    return HttpResponse("cos dla usera: " + body['idUser'] + ' ' + str(Random().randint(0, 100)), 200)
+    response = {}
+    for task in list(Workflow.objects.filter(id=body['id']))[0].tasks.all():
+        if not task.skip:
+            response[f'Task-{task.name}{task.id}'] = task.status
+            for subtask in task.subtasks.all():
+                if not subtask.skip:
+                    response[f'{subtask.name}-{subtask.id}'] = subtask.status
+    return HttpResponse(str(response), 200)
