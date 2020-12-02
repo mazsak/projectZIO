@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
@@ -63,13 +63,11 @@ def register_view(request):
     return render(request, 'pages/register.html', context)
 
 @login_required
+@permission_required("workflows.view_workflow", raise_exception=True)
 def workflows_view(request):
     logged_in_user = request.user
-    if logged_in_user.has_perm("workflows.view_workflow"):
-        context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
-        return render(request, 'pages/workflows.html', context)
-    else:
-        return HttpResponse("You have no permission to see workflow details.")
+    context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
+    return render(request, 'pages/workflows.html', context)
 
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
