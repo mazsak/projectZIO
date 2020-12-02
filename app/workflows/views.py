@@ -60,12 +60,16 @@ def register_view(request):
             return redirect('/login')
     return render(request, 'pages/register.html', context)
 
-
 def workflows_view(request):
-    logged_in_user = request.user
-    context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
-    return render(request, 'pages/workflows.html', context)
-
+    if request.user.is_authenticated:
+        logged_in_user = request.user
+        if logged_in_user.has_perm("workflows.view_workflow"):
+            context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
+            return render(request, 'pages/workflows.html', context)
+        else:
+            return HttpResponse("You have no permission to see workflow details.")
+    else:
+        return HttpResponse("Only logged in users can see content of this page.")
 
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
