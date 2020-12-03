@@ -35,3 +35,7 @@ docker-compose.yml
 .dockerignore
 *.md
 db.sqlite3
+
+# All migration files expect __init__.py
+**/workflows/migration/*.py
+!**/workflows/migration/__init__.py
