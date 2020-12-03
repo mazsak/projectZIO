@@ -1,37 +1,39 @@
 version: '3'
-services: 
-    app:
-        build: 
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - "8080:8000"
-        container_name: django_app
-        volumes:
-            - ./app:/usr/src/app
-            - ./app/app:/usr/src/app/app
-            - ./app/skrypty:/usr/src/app/skrypty
-            - ./app/workflows:/usr/src/app/workflows
-            - ./app/workflows/migrations:/usr/src/app/workflows/migrations
-        command: python manage.py runserver 0.0.0.0:8000
-    worker:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        container_name: celery_worker
-        command: celery -A app worker --loglevel=info
-        volumes:
-            - ./app:/usr/src/app
-            - ./app/app:/usr/src/app/app
-            - ./app/skrypty:/usr/src/app/skrypty
-            - ./app/workflows:/usr/src/app/workflows
-            - ./app/workflows/migrations:/usr/src/app/workflows/migrations
-        links:
-            - broker
-        depends_on: 
-            - broker
-    broker:
-        image: rabbitmq:3.8.9-alpine
-        ports:
-            - "5672:5672"
-        container_name: rabbitmq_broker
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000"
+    container_name: django_app
+    volumes:
+      - ./app:/usr/src/app
+      - ./app/app:/usr/src/app/app
+      - ./app/skrypty:/usr/src/app/skrypty
+      - ./app/workflows:/usr/src/app/workflows
+      - ./app/workflows/migrations:/usr/src/app/workflows/migrations
+    command: python manage.py runserver 0.0.0.0:8000
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    ports:
+      - "5555:5555"
+    command: celery -A app worker --loglevel=info
+    volumes:
+      - ./app:/usr/src/app
+      - ./app/app:/usr/src/app/app
+      - ./app/skrypty:/usr/src/app/skrypty
+      - ./app/workflows:/usr/src/app/workflows
+      - ./app/workflows/migrations:/usr/src/app/workflows/migrations
+    links:
+      - broker
+    depends_on:
+      - broker
+  broker:
+    image: redis:6.0.9-alpine
+    ports:
+      - "6379:6379"
+    container_name: redis_broker

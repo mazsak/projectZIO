@@ -119,7 +119,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-CELERY_BROKER_URL = 'amqp://broker'
-
+CELERY_BROKER_URL ='redis://broker'
+CELERY_RESULT_BACKEND ='redis://broker'
 LOGIN_URL = "login"
