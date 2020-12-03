@@ -121,3 +121,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 CELERY_BROKER_URL ='redis://broker'
 CELERY_RESULT_BACKEND ='redis://broker'
+LOGIN_URL = "login"

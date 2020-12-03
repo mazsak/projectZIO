@@ -4,8 +4,9 @@ from app.tasks import fake_task, launch_subtask
 from celery import chain, group
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -56,22 +57,27 @@ def register_view(request):
             messages.error(request, "Username is already taken")
         else:
             user = User.objects.create_user(username, email, password)
+            user.groups.add(Group.objects.get(name="User"))
             messages.success(request, "Account created successfully")
             return redirect('/login')
     return render(request, 'pages/register.html', context)
 
 
+@login_required
+@permission_required("workflows.view_workflow", raise_exception=True)
 def workflows_view(request):
     logged_in_user = request.user
     context = {"workflows": Workflow.objects.filter(users=logged_in_user)}
     return render(request, 'pages/workflows.html', context)
 
 
+@login_required
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
     return render(request, 'pages/workflow.html', context)
 
 
+@login_required
 def update_create_workflow_view(request):
     if request.method == "POST":
         name_workflow = request.POST.get('name_workflow')
@@ -122,6 +128,7 @@ def update_create_workflow_view(request):
     return render(request, 'pages/create_workflow.html', context)
 
 
+@login_required
 def update_create_task_view(request):
     if request.method == "POST":
         name_task = request.POST.get('name_task')
@@ -146,6 +153,7 @@ def update_create_task_view(request):
     return render(request, 'pages/create_task.html', context)
 
 
+@login_required
 def account_view(request):
     if request.method == 'POST':
         old_password = request.POST.get('old_password')
@@ -165,11 +173,13 @@ def logout_view(request):
     return redirect('/login')
 
 
+@login_required
 def delete_users_from_workflow_view(request, id):
     print("Work in progress")
     # TODO Add removing users from workflow
 
 
+@login_required
 def workflow_start_view(request, id):
     ids = eval(request.body)['ids']
     print(ids)
@@ -230,6 +240,7 @@ def workflow_start_view(request, id):
     return HttpResponse(f'\n\n\nids: {ids}\n\n\n', status=200)
 
 
+@login_required
 def workflow_update_view(request):
     body = eval(request.body)
 
@@ -246,6 +257,7 @@ def workflow_update_view(request):
     return HttpResponse('Update', status=200)
 
 
+@login_required
 def workflow_status_view(request):
     body = eval(request.body)
     response = {}

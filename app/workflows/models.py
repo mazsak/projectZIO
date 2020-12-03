@@ -41,6 +41,12 @@ class TaskBase(models.Model):
 
 # Create your models here.
 class Subtask(models.Model):
+    
+    class Meta:
+        permissions = [
+            ("upload_script", "Can upload script to subtask"),
+        ]
+    
     name = models.CharField(max_length=60)
     notes = models.CharField(max_length=1000)
     script_path = models.FilePathField(path=os.path.join(os.getcwd(), 'skrypty'))
@@ -71,6 +77,13 @@ class Task(models.Model):
 
 
 class Workflow(models.Model):
+    
+    class Meta:
+        permissions = [
+            ("execute_workflow", "Can execute workflow's all tasks and subtasks"),
+            ("assign_workflow", "Can assign workflow for user")
+        ]
+    
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE, related_name='author')
     name = models.CharField(max_length=60)
