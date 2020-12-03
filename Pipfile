@@ -7,7 +7,9 @@ verify_ssl = true
 
 [packages]
 django = "*"
-celery = "*"
+celery = "==4.4.1"
+flower = "*"
+redis = "*"
 
 [requires]
 python_version = "3.6"
