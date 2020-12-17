@@ -26,13 +26,18 @@ def launch_subtask(self, *args, **kwargs):
         shell=True
     )
 
-    for line in iter(process.stdout.readline, b''):
-        with open(f"log_{data['workflow_id']}_{data['task_id']}_{subtask.id}.txt", "a") as f:
+    task = subtask.task_set.all()[0]
+
+    with open(f"log_{data['workflow_id']}_{data['user_id']}.txt", "a") as f:
+        f.write(f"\nTask id: {task.id}\nTask name: {task.name}\nSubtask id: {data['id']}\nSubtask name: {subtask.name}\n")
+        for line in iter(process.stdout.readline, b''):
             line = line.decode('utf-8')
             res.append(line)
             f.write(line)
             print(line)
     process.wait()
+
     subtask.status = 'SUCCESS'
     subtask.save()
+
     return res

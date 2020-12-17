@@ -5,42 +5,62 @@
     <meta charset="UTF-8">
     <link href="{% static 'css/style_component.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="{% static 'js/register_validation.js' %}"></script>
     <title>Register</title>
 </head>
-<body>
-<div class="panel center">
-    {% for message in messages %}
-        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-            <div class="alert alert-success center-text notification-error">
-                <a class="close" href="#" data-dismiss="alert"></a>
+<body style="background-color: #F2F2F2;">
+<div style="width: 100%; height: 100%;">
+    <div class="center">
+        <div class="panel">
+            <form method="post">
+                <div class="col">
+                    <div class="row justify-content-center">
+                        <h1>Register</h1>
+                    </div>
+                    <div>
+                        {% csrf_token %}
+                        {% for message in messages %}
+                            {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                                <div class="alert alert-success center-text notification-error">
+                                    <a class="close" href="#" data-dismiss="alert"></a>
 
-                {{ message }}
+                                    {{ message }}
 
-            </div>
-        {% endif %}
-        <div id="error_message" class="alert alert-success center-text notification-error"></div>
-    {% endfor %}
-    <div class="margin-30 center-text">
-        <h1>Register</h1>
+                                </div>
+                            {% endif %}
+                            <div id="error_message" class="alert alert-success center-text notification-error"></div>
+                        {% endfor %}
+                        <div class="margin-30">
+                            <input name="login" type="text" placeholder="Login" required onchange="validateLogin()"/>
+                        </div>
+                        <div class="margin-30">
+                            <input name="email" type="email" placeholder="Email" required/>
+                        </div>
+                        <div class="margin-30">
+                            <input name="password" type="password" placeholder="Password" required
+                                   onchange="validatePasswords()"/>
+                        </div>
+                        <div class="margin-30">
+                            <input name="confirm_password" type="password" placeholder="Confirm password" required
+                                   onchange="validatePasswords()"/>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col">
+                                <a class="btn btn-danger" href="/login" role="button">Cancel</a>
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-success" type="submit">Create</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    <form name="registration_form" method="post" >
-        {% csrf_token %}
-        <div class="margin-30">
-            <input name="login" type="text" placeholder="Login" required onchange="validateLogin()"/>
-        </div>
-        <div class="margin-30">
-            <input name="email" type="email" placeholder="Email" required/>
-        </div>
-        <div class="margin-30">
-            <input name="password" type="password" placeholder="Password" required onchange="validatePasswords()"/>
-        </div>
-        <div class="margin-30">
-            <input name="confirm_password" type="password" placeholder="Confirm password" required onchange="validatePasswords()"/>
-        </div>
-        <a class="danger cancel" href="/login">Cancel</a>
-        <button class="success" type="submit">Create</button>
-    </form>
 </div>
 </body>
 </html>

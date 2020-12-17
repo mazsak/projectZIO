@@ -7,11 +7,11 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <title>{{ workflow.name }}</title>
     <script src="{% static 'js/script.js' %}"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
 <div>
@@ -23,11 +23,9 @@
             <div class="col">
                 <div class="panel" style="min-width: 400px;">
                     <div class="row">
-                        <button onclick="selectAllAction()">Select all</button>
                         <button onclick="executeSelectedAction({{ workflow.id }})">Execute selected</button>
-                        <button onclick="pauseSelectedAction()">Pause selected</button>
-                        <button onclick="stopSelectedAction()">Stop selected</button>
-                        <button onclick="deleteSelectedAction({{ workflow.id }})">Delete selected</button>
+{#                        <button onclick="pauseSelectedAction({{ workflow.id }})">Pause selected</button>#}
+                        <button onclick="stopSelectedAction({{ workflow.id }})">Stop selected</button>
                     </div>
                     <hr/>
                     <div class="row" style="margin: 10px">
@@ -35,19 +33,39 @@
                             <thead>
                             <tr>
                                 <th scope="col">Name</th>
-                                <th scope="col">Select</th>
+                                <th scope="col">
+                                    <div class="row">
+                                        <div class="col-0">
+                                            Select
+                                        </div>
+                                        <div class="col">
+                                        <input name="select_all" onchange="selectAllAction()" type="checkbox">
+                                        </div>
+                                    </div>
+                                </th>
                                 <th scope="col">Status</th>
+                                <th scope="col">Detail</th>
                             </tr>
                             </thead>
                             <tbody id="users">
                             {% for user in workflow.users.all %}
-                            <tr>
-                                <td>{{ user.username }}</td>
-                                <td>
-                                    <input name="user_checkbox" id="{{ user.id }}" type="checkbox">
-                                </td>
-                                <td id="status_{{ user.id }}">  </td>
-                            </tr>
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>
+                                        <input name="user_checkbox" id="{{ user.id }}" type="checkbox">
+                                    </td>
+                                    <td>
+                                        {% for task in workflow.tasks.all %}
+                                            <span id="status_{{ task.id }}_{{ user.id }}"
+                                                  class="glyphicon glyphicon-question-sign"
+                                                  style="color: orange"></span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <a href="/workflows/log/log_{{ workflow.id }}_{{ user.id }}.txt"
+                                           class="btn btn-primary">Log</a>
+                                    </td>
+                                </tr>
                             {% endfor %}
                             </tbody>
                         </table>
@@ -59,44 +77,47 @@
                     <div class="accordion" style="margin: 0;">
                         {% for task in workflow.tasks.all %}
                             <div class="card" style="margin: 0;">
-                            <div class="card-header row" id="{{ task.id }}-{{ workflow.id }}"
-                                 style="margin: 0;">
-                                <div class="col">
-                                    <h5 style="margin: 0;">
-                                        <button class="btn btn-link " type="button" data-toggle="collapse"
-                                                data-target="#collapse{{ task.id }}-{{ workflow.id }}"
-                                                aria-expanded="true"
-                                                aria-controls="collapse{{ task.id }}-{{ workflow.id }}"
-                                                style="margin: 0; overflow: hidden; white-space: nowrap;"
-                                                data-toggle="tooltip" data-placement="top"
-                                                title="{{ task.name }}">
-                                            {{ task.name }}
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div class="col">
-                                    <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="skip_{{ task.id }}" type="checkbox" class="custom-control-input" onclick="updateWrokflow({{ task.id }}, 'task', 'skip')"
-                                                {% if task.skip %}
-                                               checked
-                                                {% endif %}
-                                               id="skipTask{{ task.id }}">
-                                        <label class="custom-control-label" for="skipTask{{ task.id }}"
-                                               style="padding-top: 5px;">Skip</label>
+                                <div class="card-header row" id="{{ task.id }}-{{ workflow.id }}"
+                                     style="margin: 0;">
+                                    <div class="col">
+                                        <h5 style="margin: 0;">
+                                            <button class="btn btn-link " type="button" data-toggle="collapse"
+                                                    data-target="#collapse{{ task.id }}-{{ workflow.id }}"
+                                                    aria-expanded="true"
+                                                    aria-controls="collapse{{ task.id }}-{{ workflow.id }}"
+                                                    style="margin: 0; overflow: hidden; white-space: nowrap;"
+                                                    data-toggle="tooltip" data-placement="top"
+                                                    title="{{ task.name }}">
+                                                {{ task.name }}
+                                            </button>
+                                        </h5>
                                     </div>
-                                    <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="previous_{{ task.id }}" type="checkbox" onclick="updateWrokflow({{ task.id }}, 'task', 'previous')"
-                                               class="custom-control-input"
-                                               id="previousTask{{ task.id }}"
-                                                {% if task.run_with_previous %}
-                                               checked
-                                                {% endif %}
-                                               style="height: 2.5rem; width: calc(4rem + 0.75rem);">
-                                        <label class="custom-control-label" for="previousTask{{ task.id }}"
-                                               style="padding-top: 5px;">Previous</label>
+                                    <div class="col">
+                                        <div class="custom-control custom-switch custom-switch-xl">
+                                            <input name="skip_{{ task.id }}" type="checkbox"
+                                                   class="custom-control-input"
+                                                   onclick="updateWrokflow({{ task.id }}, 'task', 'skip')"
+                                                    {% if task.skip %}
+                                                   checked
+                                                    {% endif %}
+                                                   id="skipTask{{ task.id }}">
+                                            <label class="custom-control-label" for="skipTask{{ task.id }}"
+                                                   style="padding-top: 5px;">Skip</label>
+                                        </div>
+                                        <div class="custom-control custom-switch custom-switch-xl">
+                                            <input name="previous_{{ task.id }}" type="checkbox"
+                                                   onclick="updateWrokflow({{ task.id }}, 'task', 'previous')"
+                                                   class="custom-control-input"
+                                                   id="previousTask{{ task.id }}"
+                                                    {% if task.run_with_previous %}
+                                                   checked
+                                                    {% endif %}
+                                                   style="height: 2.5rem; width: calc(4rem + 0.75rem);">
+                                            <label class="custom-control-label" for="previousTask{{ task.id }}"
+                                                   style="padding-top: 5px;">Previous</label>
+                                        </div>
                                     </div>
                                 </div>
-
                                 <div id="collapse{{ task.id }}-{{ workflow.id }}" class="collapse"
                                      aria-labelledby="{{ task.id }}-{{ workflow.id }}"
                                      data-parent="#accordionExample">
@@ -113,41 +134,47 @@
                                                          id="subtask{{ subtask.id }}-{{ task.id }}"
                                                          style="margin: 0;">
                                                         <div class="col">
-                                                        <h5 style="margin: 0;">
-                                                            <button class="btn btn-link" type="button"
-                                                                    data-toggle="collapse"
-                                                                    data-target="#collapseSubtask{{ subtask.id }}-{{ task.id }}"
-                                                                    aria-expanded="true"
-                                                                    aria-controls="collapseSubtask{{ subtask.id }}-{{ task.id }}"
-                                                                    style="margin: 0;" data-toggle="tooltip"
-                                                                    data-placement="top"
-                                                                    title="{{ subtask.name }}">
-                                                                {{ subtask.name }}
-                                                            </button>
-                                                        </h5>
+                                                            <h5 style="margin: 0;">
+                                                                <button class="btn btn-link" type="button"
+                                                                        data-toggle="collapse"
+                                                                        data-target="#collapseSubtask{{ subtask.id }}-{{ task.id }}"
+                                                                        aria-expanded="true"
+                                                                        aria-controls="collapseSubtask{{ subtask.id }}-{{ task.id }}"
+                                                                        style="margin: 0;" data-toggle="tooltip"
+                                                                        data-placement="top"
+                                                                        title="{{ subtask.name }}">
+                                                                    {{ subtask.name }}
+                                                                </button>
+                                                            </h5>
                                                         </div>
-                                <div class="col">
-                                    <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="skip_{{ subtask.id }}-{{ task.id }}" type="checkbox" class="custom-control-input" onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'skip')"
-                                                {% if subtask.skip %}
-                                               checked
-                                                {% endif %}
-                                               id="skipTask{{ subtask.id }}-{{ task.id }}">
-                                        <label class="custom-control-label" for="skipTask{{ subtask.id }}-{{ task.id }}"
-                                               style="padding-top: 5px;">Skip</label>
-                                    </div>
-                                    <div class="custom-control custom-switch custom-switch-xl">
-                                        <input name="previous_{{ subtask.id }}-{{ task.id }}" type="checkbox" onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'previous')"
-                                               class="custom-control-input"
-                                               id="previousTask{{ subtask.id }}-{{ task.id }}"
-                                                {% if subtask.run_with_previous %}
-                                               checked
-                                                {% endif %}
-                                               style="height: 2.5rem; width: calc(4rem + 0.75rem);">
-                                        <label class="custom-control-label" for="previousTask{{ subtask.id }}-{{ task.id }}"
-                                               style="padding-top: 5px;">Previous</label>
-                                    </div>
-                                </div>
+                                                        <div class="col">
+                                                            <div class="custom-control custom-switch custom-switch-xl">
+                                                                <input name="skip_{{ subtask.id }}-{{ task.id }}"
+                                                                       type="checkbox" class="custom-control-input"
+                                                                       onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'skip')"
+                                                                        {% if subtask.skip %}
+                                                                       checked
+                                                                        {% endif %}
+                                                                       id="skipTask{{ subtask.id }}-{{ task.id }}">
+                                                                <label class="custom-control-label"
+                                                                       for="skipTask{{ subtask.id }}-{{ task.id }}"
+                                                                       style="padding-top: 5px;">Skip</label>
+                                                            </div>
+                                                            <div class="custom-control custom-switch custom-switch-xl">
+                                                                <input name="previous_{{ subtask.id }}-{{ task.id }}"
+                                                                       type="checkbox"
+                                                                       onclick="updateWrokflow({{ subtask.id }}, 'subtask', 'previous')"
+                                                                       class="custom-control-input"
+                                                                       id="previousTask{{ subtask.id }}-{{ task.id }}"
+                                                                        {% if subtask.run_with_previous %}
+                                                                       checked
+                                                                        {% endif %}
+                                                                       style="height: 2.5rem; width: calc(4rem + 0.75rem);">
+                                                                <label class="custom-control-label"
+                                                                       for="previousTask{{ subtask.id }}-{{ task.id }}"
+                                                                       style="padding-top: 5px;">Previous</label>
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                     <div id="collapseSubtask{{ subtask.id }}-{{ task.id }}"
@@ -167,12 +194,21 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
 </body>
+<script>
+    getAllStatus();
+    async function getAllStatus() {
+        var inputs = document.getElementsByName("user_checkbox");
+        for (var i = 0; i < inputs.length; i++) {
+            await getStatus({{ workflow.id }}, inputs[i].id);
+        }
+    }
+</script>
 </html>

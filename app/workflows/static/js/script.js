@@ -15,33 +15,27 @@ function getElements() {
 async function executeSelectedAction(idWorkflow) {
     var selectedElements = getElements();
     executeWorkflow(idWorkflow, selectedElements);
-    for (var i = 0; i < selectedElements.length; i++) {
-        getStatus(idWorkflow, selectedElements[i]);
-    }
+
 }
 
 function selectAllAction() {
+    var all = document.getElementsByName("select_all")[0];
     var inputs = document.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; i++) {
         if (inputs[i].type === "checkbox" && inputs[i].name === "user_checkbox") {
-            inputs[i].checked = true;
+            inputs[i].checked = all.checked;
         }
     }
 }
 
-function pauseSelectedAction() {
+function pauseSelectedAction(idWorkflow) {
     var selectedElements = getElements()
     //TODO: trzeba endpointy zrobic
 }
 
-function stopSelectedAction() {
-    var selectedElements = getElements()
-    //TODO: trzeba endpointy zrobic
-}
-
-function deleteSelectedAction(idWorkflow) {
-    var selectedElements = getElements()
-    deleteUser(idWorkflow, selectedElements)
+function stopSelectedAction(idWorkflow) {
+    var selectedElements = getElements();
+    stopWorkflow(idWorkflow, selectedElements);
 }
 
 function updateWrokflow(id, type, update) {
@@ -49,15 +43,15 @@ function updateWrokflow(id, type, update) {
 }
 
 function getStatus(id, idUser) {
-    getStatus(id, idUser)
+    getStatus(id, idUser);
 }
 
-const deleteUser = async (idWorkflow, ids) => {
+const stopWorkflow = async (idWorkflow, ids) => {
     try {
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
+        axios.defaults.xsrfCookieName = 'csrftoken';
         const res = await axios({
-            method: 'delete',
+            method: 'post',
             url: URL_BASIC + '/czarymary/hokus/pokus/json/mendoza/zrob/endpointa/' + idWorkflow,
             data: {
                 ids: ids
@@ -74,7 +68,7 @@ const deleteUser = async (idWorkflow, ids) => {
 const executeWorkflow = async (idWorkflow, ids) => {
     try {
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
+        axios.defaults.xsrfCookieName = 'csrftoken';
         const res = await axios({
             method: 'post',
             url: URL_BASIC + '/workflows/start/' + idWorkflow,
@@ -95,7 +89,7 @@ const executeWorkflow = async (idWorkflow, ids) => {
 const updateSkipPrevious = async (id, type, update) => {
     try {
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
+        axios.defaults.xsrfCookieName = 'csrftoken';
         const res = await axios({
             method: 'post',
             url: URL_BASIC + '/workflows/update',
@@ -117,7 +111,7 @@ const updateSkipPrevious = async (id, type, update) => {
 async function getStatus(id, idUser) {
     try {
         axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-        axios.defaults.xsrfCookieName = "csrftoken";
+        axios.defaults.xsrfCookieName = 'csrftoken';
         const res = await axios({
             method: 'post',
             url: URL_BASIC + '/workflows/status',
@@ -126,17 +120,40 @@ async function getStatus(id, idUser) {
                 idUser: idUser
             }
         });
-        let ele = document.getElementById('status_' + idUser);
-        ele.innerHTML = res.data;
+        var counter = 0;
+        var data = JSON.parse(res.data.replaceAll("'", "\""));
+        for (var i = 0; i < data.length; i++) {
+            let ele = document.getElementById('status_' + data[i]['id'] + '_' + idUser);
+            if (data[i]['action'] === 'queue') {
+                ele.className = "glyphicon glyphicon-info-sign";
+                ele.style.color = 'blue';
+            } else if (data[i]['action'] === 'finished') {
+                ele.className = "glyphicon glyphicon-ok-sign";
+                ele.style.color = 'green';
+                counter++;
+            } else if (data[i]['action'] === 'started') {
+                ele.className = "glyphicon glyphicon-play";
+                ele.style.color = 'green';
+            } else if (data[i]['action'] === 'skip') {
+                ele.className = "glyphicon glyphicon-minus-sign";
+                ele.style.color = 'orange';
+                counter++;
+            }
+
+        }
         setTimeout(function () {
             getStatus(id, idUser);
-        }, 1000);
+        }, 2000);
+
         console.log('Update Todo ID: ', id, ' idUser: ', idUser);
         console.log(res.data);
 
         return res.data;
     } catch (e) {
-        console.error(e);
+        // console.error(e);
+        setTimeout(function () {
+            getStatus(id, idUser);
+        }, 2000);
     }
 }
 

@@ -1,10 +1,12 @@
 from datetime import datetime
 
+from app.celery import app
 from app.tasks import fake_task, launch_subtask
 from celery import chain, group
+from celery.result import GroupResult
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
@@ -19,6 +21,8 @@ def index_view(request):
 
 
 def login_view(request):
+    if request.method == 'OPCTIONS' and request.user.is_authenticated():
+        return
     username = request.POST.get('login')
     password = request.POST.get('password')
     context = {
@@ -26,7 +30,6 @@ def login_view(request):
         'password': None
     }
     user = authenticate(request, username=username, password=password)
-    # print(request.META.get('HTTP_REFERER'))
     if request.method == 'GET':
         if user is not None:
             messages.info(request, "Account created successfully")
@@ -61,6 +64,11 @@ def register_view(request):
             messages.success(request, "Account created successfully")
             return redirect('/login')
     return render(request, 'pages/register.html', context)
+
+@login_required
+@permission_required("workflows.view_workflow", raise_exception=True)
+def admin_file_view(request):
+    pass
 
 
 @login_required
@@ -117,6 +125,7 @@ def update_create_workflow_view(request):
                                            author=request.user)
         workflow.tasks.set(tasks)
         workflow.users.set(list(User.objects.all()))
+        workflow.updated_on = datetime.now()
         workflow.save()
         return redirect('/workflows')
 
@@ -174,70 +183,101 @@ def logout_view(request):
 
 
 @login_required
-def delete_users_from_workflow_view(request, id):
-    print("Work in progress")
-    # TODO Add removing users from workflow
+def workflow_start_view(request, id):
+    ids = eval(request.body)['ids']
+    workflow = list(Workflow.objects.filter(id=id))[0]
+    user_groups = []
+    celery_task_ids = {}
+    workflow.updated_on = datetime.now()
+    workflow.save()
+    for user_id in ids:
+        with open(f"log_{id}_{user_id}.txt", "a") as f:
+            f.write(f"\nWorkflow date: {workflow.updated_on}\n")
+        tasks = []
+        tasks_with_prev = []
+        for task in workflow.tasks.all():
+            task_id = task.id
+            if not task.skip:
+                task.status = "PENDING"
+                subtasks = []
+                subtasks_with_prev = []
+                for subtask in task.subtasks.all():
+                    if not subtask.skip:
+                        subtask.status = 'PENDING'
+                        if subtask.run_with_previous:
+                            subtasks_with_prev.append(subtask)
+                        else:
+                            if subtasks_with_prev:
+                                subtasks.append(fake_task.s())
+                                subtasks.append(
+                                    group(launch_subtask.s(
+                                        data={
+                                            'id': subtask.id,
+                                            'workflow_id': workflow.id,
+                                            'task_id': task_id,
+                                            'user_id': user_id
+                                        }) for subtask in subtasks_with_prev))
+                            subtasks_with_prev = [subtask]
+                    else:
+                        subtask.status = 'SKIPPED'
+                    subtask.save()
+                subtasks.append(fake_task.s())
+                subtasks.append(group(
+                    launch_subtask.s(data={
+                        'id': subtask.id,
+                        'workflow_id': workflow.id,
+                        'task_id': task_id,
+                        'user_id': user_id
+                    }) for subtask in subtasks_with_prev))
+                if task.run_with_previous:
+                    tasks_with_prev.append(subtasks)
+                else:
+                    if tasks_with_prev:
+                        tasks.append(fake_task.s())
+                        tasks.append(group(chain(*sub) for sub in tasks_with_prev))
+                    tasks_with_prev = [subtasks]
+            else:
+                task.status = "SKIPPED"
+                for subtask in task.subtasks.all():
+                    subtask.status = 'SKIPPED'
+                    subtask.save()
+            task.save()
+        tasks.append(fake_task.s())
+        tasks.append(group(chain(*sub) for sub in tasks_with_prev))
+        ch = chain(*tasks)()
+        celery_task_ids[user_id] = as_list(ch)
+
+    workflow.celery_id = str(celery_task_ids)
+    workflow.save()
+
+    return HttpResponse(f'\n\n\nids: {ids}\n\n\n', status=200)
+
+
+def as_list(task):
+    results = []
+    parent = task.parent
+    if isinstance(task, GroupResult):
+        for t in task.results:
+            results.extend(as_list(t))
+    else:
+        results.append({'id': task.id, 'args': task.kwargs, 'esss': 'tuuuu'})
+    if parent is not None:
+        results.extend(as_list(parent))
+    return results
 
 
 @login_required
-def workflow_start_view(request, id):
+def workflow_stop_view(request, id):
     ids = eval(request.body)['ids']
-    print(ids)
-    workflow = list(Workflow.objects.filter(id=id))[0]
-    tasks = []
-    tasks_with_prev = []
-    for task in workflow.tasks.all():
-        if not task.skip:
-            task.status = "PENDING"
-            subtasks = []
-            subtasks_with_prev = []
-            for subtask in task.subtasks.all():
-                if not subtask.skip:
-                    subtask.status = 'PENDING'
-                    if subtask.run_with_previous:
-                        subtasks_with_prev.append(subtask)
-                    else:
-                        if subtasks_with_prev:
-                            subtasks.append(fake_task.s())
-                            subtasks.append(
-                                group(launch_subtask.s(
-                                    data={'id': subtask.id, 'workflow_id': workflow.id, 'task_id': task.id}) for subtask
-                                      in subtasks_with_prev))
-                        subtasks_with_prev = [subtask]
-                else:
-                    subtask.status = 'SKIPPED'
-                subtask.save()
-            subtasks.append(fake_task.s())
-            subtasks.append(group(
-                launch_subtask.s(data={'id': subtask.id, 'workflow_id': workflow.id, 'task_id': task.id}) for subtask in
-                subtasks_with_prev))
-            if task.run_with_previous:
-                tasks_with_prev.append(subtasks)
-            else:
-                if tasks_with_prev:
-                    tasks.append(tasks_with_prev)
-                tasks_with_prev = [subtasks]
-        else:
-            task.status = "SKIPPED"
-            for subtask in task.subtasks.all():
-                subtask.status = 'SKIPPED'
-                subtask.save()
-        task.save()
-    tasks.append(tasks_with_prev)
-
-    groups = []
-    for index, tasks_group in enumerate(tasks):
-        groups.append(fake_task.s())
-        groups.append(group(chain(*subtasks) for subtasks in tasks_group))
-
-    user_groups = []
+    workflow = Workflow.objects.filter(id=id)[0]
+    task_ids = eval(workflow.celery_id)
     for user_id in ids:
-        user_groups.append(fake_task.s())
-        user_groups.append(chain(*groups))
-    ch = chain(*user_groups)()
-    # ch = chain(*groups)()
+        for task_id in task_ids[user_id]:
+            app.control.revoke(task_id['id'], terminate=True, signal='SIGKILL')
+        with open(f'log_{id}_{user_id}.txt', 'a') as f:
+            f.write("\nWorkflow has been stopped\n")
 
-    return HttpResponse(f'\n\n\nids: {ids}\n\n\n', status=200)
+    return HttpResponse('Stop', status=200)
 
 
 @login_required
@@ -260,28 +300,39 @@ def workflow_update_view(request):
 @login_required
 def workflow_status_view(request):
     body = eval(request.body)
-    response = {}
-    subtasks_success_counter = 0
-    tasks_success_counter = 0
-    tasks = list(Workflow.objects.filter(id=body['id']))[0].tasks.all()
-    for task in tasks:
-        if not task.skip:
-            response[f'Task-{task.name}{task.id}'] = task.status
-            for subtask in task.subtasks.all():
-                if not subtask.skip:
-                    response[f'{subtask.name}-{subtask.id}'] = subtask.status
-                if subtask.status == "SUCCESS" or subtask.status == "SKIPPED":
-                    subtasks_success_counter += 1
-                if subtask.status == "STARTED":
-                    task.status = "STARTED"
-                    task.save()
-            if subtasks_success_counter == len(task.subtasks.all()):
-                tasks_success_counter += 1
-                task.status = "SUCCESS"
-                task.save()
-        else:
-            tasks_success_counter += 1
-    if tasks_success_counter == len(tasks):
-        return HttpResponse('Finished', 200)
+    response = []
+    workflow = list(Workflow.objects.filter(id=body['id']))[0]
+    tasks = workflow.tasks.all()
+    current_line = 'Workflow date: '
+    try:
+        with open(f'log_{body["id"]}_{body["idUser"]}.txt', 'r') as f:
+            lines = f.readlines()
+            index = [lines.index(line) for line in lines if line.startswith(current_line)][-1]
+            lines = lines[index:]
+            subtasks_ids = list(
+                {int(line.replace('Subtask id: ', '')) for line in lines if line.startswith("Subtask id: ")})
+            for task in tasks:
+                if task.skip:
+                    response.append({"id": task.id, "action": "skip"})
+                else:
+                    counter = 0
+                    subtasks = task.subtasks.all()
+                    ids = [subtask.id for subtask in subtasks if not subtask.skip]
+                    for subtask_id in subtasks_ids:
+                        if subtask_id in ids:
+                            counter += 1
+                    if counter == len(ids):
+                        response.append({"id": task.id, "action": "finished"})
+                    elif counter == 0:
+                        response.append({"id": task.id, "action": "queue"})
+                    else:
+                        response.append({"id": task.id, "action": "started"})
+        return HttpResponse(str(response), status=200)
+    except Exception as e:
+        response = [{"id": task.id, "action": "queue", 'try': str(e)} for task in tasks]
+        return HttpResponse(str(response), status=200)
 
-    return HttpResponse(str(response), 200)
+
+def workflow_log_view(request, file):
+    with open(file, 'r') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
