@@ -91,6 +91,51 @@ def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
     return render(request, 'pages/workflow.html', context)
 
+@login_required
+def update_workflow_view(request, id):
+    if request.method == "POST":
+        workflow = Workflow.objects.get(id=request.POST.get('id_workflow'))
+        workflow.name = request.POST.get('name_workflow')
+        workflow.notes = request.POST.get('description_workflow')
+        for task in workflow.tasks.all():
+            Task.objects.filter(id=task.id).delete()
+        tasks_base = [TaskBase.objects.filter(id=x)[0] for x in request.POST.keys() if x.isdigit()]
+        tasks = []
+        for task_base in tasks_base:
+            subtasks = []
+            for subtask_base in task_base.subtasks.all():
+                subtask = Subtask.objects.create(name=subtask_base.name, notes=subtask_base.notes,
+                                                 script_path=subtask_base.script_path,
+                                                 created_on=subtask_base.created_on, updated_on=datetime.now,
+                                                 skip=subtask_base.skip,
+                                                 run_with_previous=subtask_base.run_with_previous)
+                subtask.args.set(subtask_base.args.all())
+                subtasks.append(subtask)
+            task = Task.objects.create(
+                name=task_base.name,
+                notes=task_base.notes,
+                created_on=task_base.created_on,
+                updated_on=datetime.now,
+                skip=task_base.skip,
+                run_with_previous=task_base.run_with_previous
+            )
+            task.subtasks.set(subtasks)
+            task.save()
+            tasks.append(task)
+        workflow.tasks.set(tasks)
+        workflow.updated_on = datetime.now()
+        workflow.save()
+        return redirect('/workflows')
+    workflow = Workflow.objects.get(id=id)
+    context = {
+        'is_update': True,
+        'title': 'Create workflow',
+        'tasks': TaskBase.objects.all(),
+        'selected_tasks': [select_task.name for select_task in workflow.tasks.all()],
+        'workflow': workflow
+    }
+    return render(request, 'pages/create_workflow.html', context)
+
 
 @login_required
 @permission_required("workflows.change_workflow", raise_exception=True)

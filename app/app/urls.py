@@ -35,4 +35,5 @@ urlpatterns = [
     path('workflows/log/<str:file>', views.workflow_log_view, name='workflow_log_view'),
     path('admin/', admin.site.urls),
     path('admin/file', views.admin_file_view, name='admin_file_view'),
+    path('workflows/update_workflow/<int:id>', views.update_workflow_view, name='update_workflow'),
 ]
