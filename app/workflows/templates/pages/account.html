@@ -35,7 +35,7 @@
                         <button>Change</button>
                         <hr/>
                     </form>
-                    {% if user.is_staff %}
+                    {% if user.is_staff or is_great_group %}
                         <button onclick="location.href = '/admin/file'">Upload script</button>
                     {% endif %}
                     <a class="cancel" href="/logout" style="background-color: #6786DC; color: white;">Logout</a>

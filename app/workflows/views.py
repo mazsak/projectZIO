@@ -183,7 +183,10 @@ def account_view(request):
                 updated_user.set_password(new_password)
                 updated_user.save()
                 return redirect('/login')
-    return render(request, 'pages/account.html')
+    context = {
+        'is_great_group': request.user.groups.filter(name='Workflow Manager').exists()
+    }
+    return render(request, 'pages/account.html', context)
 
 @login_required
 def logout_view(request):
