@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from app.celery import app
@@ -9,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User, Group
+from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -66,9 +68,14 @@ def register_view(request):
     return render(request, 'pages/register.html', context)
 
 @login_required
-@permission_required("workflows.view_workflow", raise_exception=True)
+# @permission_required("workflows.view_workflow", raise_exception=True)
 def admin_file_view(request):
-    pass
+    if request.method == 'POST' and request.FILES['my_file']:
+        fs = FileSystemStorage(location=os.path.join(os.getcwd(), 'skrypty'))
+        file = request.FILES['my_file']
+        filename = fs.save(file.name, file)
+        return render(request, 'pages/account.html')
+    return render(request, 'pages/add_file.html')
 
 
 @login_required
@@ -97,13 +104,13 @@ def update_create_workflow_view(request):
         for task_base in tasks_base:
             subtasks = []
             for subtask_base in task_base.subtasks.all():
-                subtasks.append(Subtask.objects.create(name=subtask_base.name,
-                                                       notes=subtask_base.notes,
-                                                       script_path=subtask_base.script_path,
-                                                       created_on=subtask_base.created_on,
-                                                       updated_on=datetime.now,
-                                                       skip=subtask_base.skip,
-                                                       run_with_previous=subtask_base.run_with_previous))
+                subtask = Subtask.objects.create(name=subtask_base.name, notes=subtask_base.notes,
+                                                script_path=subtask_base.script_path,
+                                                created_on=subtask_base.created_on, updated_on=datetime.now,
+                                                skip=subtask_base.skip,
+                                                run_with_previous=subtask_base.run_with_previous)
+                subtask.args.set(subtask_base.args.all())
+                subtasks.append(subtask)
             task = Task.objects.create(
                 name=task_base.name,
                 notes=task_base.notes,

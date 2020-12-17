@@ -15,12 +15,21 @@ STATUS_VALUES = (
 )
 
 
+class Dictionary(models.Model):
+    argument = models.CharField(max_length=100)
+    eval_str = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.argument
+
+
 class SubtaskBase(models.Model):
     name = models.CharField(max_length=60)
     notes = models.CharField(max_length=1000)
     script_path = models.FilePathField(path=os.path.join(os.getcwd(), 'skrypty'))
     created_on = models.DateTimeField(default=datetime.now)
     updated_on = models.DateTimeField(auto_now=True)
+    args = models.ManyToManyField(Dictionary, null=True)
     skip = models.BooleanField(default=False)
     run_with_previous = models.BooleanField(default=False)
 
@@ -55,6 +64,7 @@ class Subtask(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=32, choices=STATUS_VALUES,
                               default='READY')
+    args = models.ManyToManyField(Dictionary, null=True)
     skip = models.BooleanField(default=False)
     run_with_previous = models.BooleanField(default=False)
 
@@ -100,11 +110,3 @@ class Workflow(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Dictionary(models.Model):
-    argument = models.CharField(max_length=100)
-    eval_str = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.argument

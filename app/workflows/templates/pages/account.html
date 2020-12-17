@@ -30,11 +30,14 @@
                             <input name="new_password" type="password" placeholder="New password">
                         </div>
                         <div style="margin: 10px;">
-                            <input name="confirm_password" type="password" placeholder="confirm new password">
+                            <input name="confirm_password" type="password" placeholder="Confirm new password">
                         </div>
                         <button>Change</button>
                         <hr/>
                     </form>
+                    {% if user.is_staff %}
+                        <button onclick="location.href = '/admin/file'">Upload script</button>
+                    {% endif %}
                     <a class="cancel" href="/logout" style="background-color: #6786DC; color: white;">Logout</a>
                 </div>
             </div>

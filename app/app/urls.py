@@ -34,5 +34,5 @@ urlpatterns = [
     path('czarymary/hokus/pokus/json/mendoza/zrob/endpointa/<int:id>', views.workflow_stop_view, name='workflow_stop_view'),
     path('workflows/log/<str:file>', views.workflow_log_view, name='workflow_log_view'),
     path('admin/', admin.site.urls),
-    path('/admin/file', views.admin_file_view, name='admin_file_view'),
+    path('admin/file', views.admin_file_view, name='admin_file_view'),
 ]
