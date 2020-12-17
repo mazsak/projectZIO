@@ -68,7 +68,6 @@ def register_view(request):
     return render(request, 'pages/register.html', context)
 
 @login_required
-# @permission_required("workflows.view_workflow", raise_exception=True)
 def admin_file_view(request):
     if request.method == 'POST' and request.FILES['my_file']:
         fs = FileSystemStorage(location=os.path.join(os.getcwd(), 'skrypty'))
@@ -87,12 +86,14 @@ def workflows_view(request):
 
 
 @login_required
+@permission_required("workflows.view_workflow", raise_exception=True)
 def workflow_view(request, id):
     context = {"workflow": list(Workflow.objects.filter(id=id))[0]}
     return render(request, 'pages/workflow.html', context)
 
 
 @login_required
+@permission_required("workflows.change_workflow", raise_exception=True)
 def update_create_workflow_view(request):
     if request.method == "POST":
         name_workflow = request.POST.get('name_workflow')
@@ -145,6 +146,7 @@ def update_create_workflow_view(request):
 
 
 @login_required
+@permission_required("workflows.add_task", raise_exception=True)
 def update_create_task_view(request):
     if request.method == "POST":
         name_task = request.POST.get('name_task')
@@ -183,17 +185,17 @@ def account_view(request):
                 return redirect('/login')
     return render(request, 'pages/account.html')
 
-
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('/login')
 
 
 @login_required
+@permission_required("workflows.execute_workflow", raise_exception=True)
 def workflow_start_view(request, id):
     ids = eval(request.body)['ids']
     workflow = list(Workflow.objects.filter(id=id))[0]
-    user_groups = []
     celery_task_ids = {}
     workflow.updated_on = datetime.now()
     workflow.save()
@@ -274,6 +276,7 @@ def as_list(task):
 
 
 @login_required
+@permission_required("workflows.execute_workflow", raise_exception=True)
 def workflow_stop_view(request, id):
     ids = eval(request.body)['ids']
     workflow = Workflow.objects.filter(id=id)[0]
@@ -288,6 +291,7 @@ def workflow_stop_view(request, id):
 
 
 @login_required
+@permission_required("workflows.change_workflow", raise_exception=True)
 def workflow_update_view(request):
     body = eval(request.body)
 
@@ -339,7 +343,7 @@ def workflow_status_view(request):
         response = [{"id": task.id, "action": "queue", 'try': str(e)} for task in tasks]
         return HttpResponse(str(response), status=200)
 
-
+@login_required
 def workflow_log_view(request, file):
     with open(file, 'r') as f:
         return HttpResponse(f.read(), content_type='text/plain')
