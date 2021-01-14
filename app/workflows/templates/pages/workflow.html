@@ -62,7 +62,8 @@
                                         {% endfor %}
                                     </td>
                                     <td>
-                                        <a href="/workflows/log/log_{{ workflow.id }}_{{ user.id }}.txt"
+                                        <p id="info_log_{{ user.id }}" hidden>The logs will be available when all tasks are complete</p>
+                                        <a id="button_log_{{ user.id }}" href="/workflows/log/log_{{ workflow.id }}_{{ user.id }}.txt"
                                            class="btn btn-primary">Log</a>
                                     </td>
                                 </tr>

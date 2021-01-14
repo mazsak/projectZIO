@@ -141,12 +141,16 @@ async function getStatus(id, idUser) {
             }
 
         }
-        setTimeout(function () {
-            getStatus(id, idUser);
-        }, 2000);
-
-        console.log('Update Todo ID: ', id, ' idUser: ', idUser);
-        console.log(res.data);
+        if (counter !== data.length) {
+            setTimeout(function () {
+                getStatus(id, idUser);
+            }, 2000);
+            document.getElementById('button_log_' + idUser).hidden = true;
+            document.getElementById('info_log_' + idUser).hidden = false;
+        } else {
+            document.getElementById('button_log_' + idUser).hidden = false;
+            document.getElementById('info_log_' + idUser).hidden = true;
+        }
 
         return res.data;
     } catch (e) {

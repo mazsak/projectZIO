@@ -56,7 +56,7 @@ def register_view(request):
         'confirm_password': None
     }
     if request.method == 'POST':
-        check_user = authenticate(username=username, password=password)
+        check_user = User.objects.get(username=username)
         if check_user is not None:
             messages.error(request, "Username is already taken")
         else:
@@ -176,7 +176,7 @@ def update_create_workflow_view(request):
                                            # run_with_previous=previous_workflow,
                                            author=request.user)
         workflow.tasks.set(tasks)
-        workflow.users.set(list(User.objects.all()))
+        workflow.users.set([request.user])
         workflow.updated_on = datetime.now()
         workflow.save()
         return redirect('/workflows')
