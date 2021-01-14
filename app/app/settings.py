@@ -24,7 +24,7 @@ SECRET_KEY = '6)sh9%^s#-fhw3n1lvvx5t0*jk$5s3x56k7l4&oxm6=)^ai6-x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'vps733855.ovh.net', '145.239.91.137', '127.0.0.1']
 
 # Application definition
 

@@ -19,11 +19,11 @@ from workflows.models import Workflow, Task, TaskBase, Subtask, SubtaskBase
 
 
 def index_view(request):
-    return render(request, 'pages/index.html')
+    return redirect('/workflows')
 
 
 def login_view(request):
-    if request.method == 'OPCTIONS' and request.user.is_authenticated():
+    if request.method == 'OPTIONS' and request.user.is_authenticated():
         return
     username = request.POST.get('login')
     password = request.POST.get('password')
@@ -49,7 +49,6 @@ def register_view(request):
     username = request.POST.get('login')
     email = request.POST.get('email')
     password = request.POST.get('password')
-    confirm_password = request.POST.get('confirm_password')
     context = {
         'login': None,
         'email': None,
