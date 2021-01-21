@@ -15,6 +15,7 @@ function getElements() {
 async function executeSelectedAction(idWorkflow) {
     var selectedElements = getElements();
     executeWorkflow(idWorkflow, selectedElements);
+    document.location.href = '/workflows/' + idWorkflow;
 
 }
 
@@ -141,12 +142,18 @@ async function getStatus(id, idUser) {
             }
 
         }
+
+        if (data[0]["try"] !== null) {
+            document.getElementById('button_log_' + idUser).hidden = true;
+            document.getElementById('info_log_' + idUser).hidden = false;
+        }
+
         if (counter !== data.length) {
+            document.getElementById('button_log_' + idUser).hidden = true;
+            document.getElementById('info_log_' + idUser).hidden = false;
             setTimeout(function () {
                 getStatus(id, idUser);
             }, 2000);
-            document.getElementById('button_log_' + idUser).hidden = true;
-            document.getElementById('info_log_' + idUser).hidden = false;
         } else {
             document.getElementById('button_log_' + idUser).hidden = false;
             document.getElementById('info_log_' + idUser).hidden = true;
@@ -155,6 +162,9 @@ async function getStatus(id, idUser) {
         return res.data;
     } catch (e) {
         // console.error(e);
+
+        document.getElementById('button_log_' + idUser).hidden = true;
+        document.getElementById('info_log_' + idUser).hidden = false;
         setTimeout(function () {
             getStatus(id, idUser);
         }, 2000);

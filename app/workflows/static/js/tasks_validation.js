@@ -25,7 +25,7 @@ function getTasks() {
 
 function validateTaskForm() {
     if (getSubtasks().length === 0){
-        alert("Select at list one subtask");
+        alert("Select at least one subtask");
         return false;
     }
     return true;
@@ -33,7 +33,7 @@ function validateTaskForm() {
 
 function validateWorkflowForm() {
     if (getSubtasks().length === 0){
-        alert("Select at list one task");
+        alert("Select at least one task");
         return false;
     }
     return true;

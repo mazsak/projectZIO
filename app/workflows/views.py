@@ -56,8 +56,8 @@ def register_view(request):
         'confirm_password': None
     }
     if request.method == 'POST':
-        check_user = User.objects.get(username=username)
-        if check_user is not None:
+        check_user = list(User.objects.filter(username=username))
+        if check_user:
             messages.error(request, "Username is already taken")
         else:
             user = User.objects.create_user(username, email, password)
