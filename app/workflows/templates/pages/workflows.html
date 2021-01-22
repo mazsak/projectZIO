@@ -21,14 +21,17 @@
             {% for workflow in workflows %}
                 <div class="panel col" style="margin:20px;height: 500px; min-width: 400px;">
                     <div>
-                        <div class="row " style="width: calc(100% - 30px)">
-                            <div style="width: calc(100% - 30px);">
+                        <div class="row " style="width: calc(100% - 60px)">
+                            <div style="width: calc(100% - 60px);">
                                 <h3 style="font-weight: bold; margin:0 10px; overflow: hidden; white-space: nowrap;"
                                     data-toggle="tooltip" data-placement="top" title="{{ workflow.name }}">
                                     {{ workflow.name }}
                                 </h3>
                             </div>
                             <div style="text-align: right;">
+                                <a href="/workflows/update_workflow/{{ workflow.id }}">
+                                    <i class="glyphicon glyphicon-pencil" style="font-size: 24px;"></i>
+                                </a>
                                 <a href="/workflows/{{ workflow.id }}">
                                     <i class="glyphicon glyphicon-log-in" style="font-size: 24px;"></i>
                                 </a>

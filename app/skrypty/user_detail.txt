@@ -1,0 +1,25 @@
+params.user_id = 'id'
+params.user_name = 'name'
+params.user_email = 'email'
+
+process UserDetail{
+    echo true
+
+    input:
+    val user_id from params.user_id
+    val user_name from params.user_name
+    val user_email from params.user_email
+
+    output:
+    stdout into results
+
+    """
+    #!/usr/bin/env python
+
+    print('${user_id}')
+    print('${user_name}')
+    print('${user_email}')
+    """
+}
+results
+    .collectFile(name: "/usr/src/cat_file.txt")

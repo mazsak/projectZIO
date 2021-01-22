@@ -5,7 +5,7 @@ process ResultLs{
     stdout into results
 
     '''
-    ls -l /usr/src
+    echo "/usr/src"
     '''
 }
 results

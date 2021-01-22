@@ -1,0 +1,18 @@
+params.user_id = 'id'
+params.user_name = 'name'
+params.user_email = 'email'
+
+process UserDetail{
+    echo true
+
+    output:
+    stdout into results
+
+    """
+    echo '${params.user_id}';
+    echo '${params.user_name}';
+    echo '${params.user_email}';
+    """
+}
+results
+    .collectFile(name: "/usr/src/cat_file.txt")
